@@ -4,226 +4,423 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASR — Aviv Shaulov Result Running</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--red:#E8212A;--orange:#FF8C42;--dark:#0f0707;--dark2:#1a0a0a}
-body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:var(--dark);color:#fff;direction:rtl;overflow-x:hidden}
+:root{
+  --red:#E8212A;
+  --red2:#c0161e;
+  --orange:#FF8C42;
+  --gold:#FFB347;
+  --dark:#0d0707;
+  --dark2:#160a0a;
+  --green:#00D68F;
+  --glow:rgba(232,33,42,0.3);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Heebo',system-ui,sans-serif;background:var(--dark);color:#fff;direction:rtl;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-.btn{display:inline-block;background:linear-gradient(135deg,var(--red),var(--orange));color:white;padding:18px 48px;border-radius:50px;font-size:17px;font-weight:800;text-decoration:none;box-shadow:0 8px 32px rgba(232,33,42,0.4);transition:transform 0.2s;cursor:pointer;border:none}
-.btn:hover{transform:translateY(-2px)}
-.btn-scroll{display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:16px 40px;border-radius:50px;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer;transition:all 0.2s}
-.btn-scroll:hover{background:rgba(255,255,255,0.12)}
+/* ─── PROGRESS BAR ─── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--red),var(--orange),var(--gold));width:0%;z-index:9999;box-shadow:0 0 10px rgba(255,140,66,0.6)}
 
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(232,33,42,0.18) 0%,transparent 65%);pointer-events:none}
-.hero::after{content:'ASR';position:absolute;font-size:260px;font-weight:900;color:rgba(255,255,255,0.025);top:50%;left:50%;transform:translate(-50%,-50%);letter-spacing:-10px;pointer-events:none;white-space:nowrap}
-.logo{width:80px;height:80px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;box-shadow:0 0 40px rgba(232,33,42,0.4);position:relative;z-index:1}
+/* ─── FLOATING CTA ─── */
+#float-cta{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(110px);z-index:998;transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;opacity:0}
+#float-cta.show{transform:translateX(-50%) translateY(0);pointer-events:all;opacity:1}
+#float-cta a{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--red),var(--orange));color:white;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 8px 28px rgba(232,33,42,0.5);font-family:'Heebo',sans-serif;animation:pulse-btn 2.8s ease-in-out infinite}
+@keyframes pulse-btn{0%,100%{box-shadow:0 8px 28px rgba(232,33,42,0.5),0 0 0 0 rgba(232,33,42,0)}60%{box-shadow:0 8px 36px rgba(232,33,42,0.6),0 0 0 10px rgba(232,33,42,0)}}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-block;background:linear-gradient(135deg,var(--red),var(--orange));color:white;padding:18px 44px;border-radius:50px;font-size:17px;font-weight:800;text-decoration:none;box-shadow:0 8px 28px var(--glow);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;border:none;position:relative;overflow:hidden;font-family:'Heebo',sans-serif;letter-spacing:0.2px}
+.btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:skewX(-20deg);transition:left 0.55s}
+.btn:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(232,33,42,0.5)}
+.btn:hover::after{left:160%}
+
+/* ─── SCROLL REVEAL ─── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.08s}
+.reveal-delay-2{transition-delay:0.16s}
+.reveal-delay-3{transition-delay:0.24s}
+.reveal-delay-4{transition-delay:0.32s}
+
+/* ─── SECTION SEPARATOR ─── */
+.sep{height:1px;background:linear-gradient(90deg,transparent,rgba(232,33,42,0.2),rgba(255,140,66,0.15),transparent);margin:0}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;position:relative;overflow:hidden;background:var(--dark)}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 20%,rgba(232,33,42,0.2) 0%,transparent 58%),radial-gradient(ellipse at 15% 85%,rgba(255,140,66,0.07) 0%,transparent 45%);pointer-events:none}
+.hero-dots{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.035) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;mask-image:radial-gradient(ellipse 80% 70% at center,black 30%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse 80% 70% at center,black 30%,transparent 70%)}
+.hero-wm{position:absolute;font-size:260px;font-weight:900;color:rgba(255,255,255,0.018);top:50%;left:50%;transform:translate(-50%,-50%);letter-spacing:-8px;pointer-events:none;white-space:nowrap;user-select:none}
+.logo{width:82px;height:82px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;position:relative;z-index:1;animation:float 4s ease-in-out infinite;flex-shrink:0}
+@keyframes float{0%,100%{transform:translateY(0);box-shadow:0 4px 28px rgba(232,33,42,0.3)}50%{transform:translateY(-7px);box-shadow:0 14px 44px rgba(232,33,42,0.45)}}
 .logo svg{width:62px;height:62px}
-.hero-tag{display:inline-block;background:rgba(232,33,42,0.15);border:1px solid rgba(232,33,42,0.4);color:#FF6B70;padding:6px 18px;border-radius:30px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px;position:relative;z-index:1}
-.hero h1{font-size:clamp(28px,5vw,54px);font-weight:900;line-height:1.2;margin-bottom:22px;position:relative;z-index:1;max-width:700px}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,#fff 0%,#FF6B70 50%,var(--orange) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,0.5);max-width:540px;line-height:1.8;margin-bottom:28px;position:relative;z-index:1}
-.coupon-banner{background:rgba(255,140,66,0.1);border:1px solid rgba(255,140,66,0.25);border-radius:12px;padding:12px 24px;margin-bottom:28px;position:relative;z-index:1;text-align:center}
-.coupon-banner div{font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7}
-.hero-cta{display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;z-index:1}
-.hero-note{font-size:12px;color:rgba(255,255,255,0.3)}
+.hero-tag{display:inline-block;background:rgba(232,33,42,0.13);border:1px solid rgba(232,33,42,0.32);color:#FF7070;padding:5px 18px;border-radius:30px;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:22px;position:relative;z-index:1}
+.hero h1{font-size:clamp(28px,5.5vw,56px);font-weight:900;line-height:1.18;margin-bottom:18px;position:relative;z-index:1;max-width:700px}
+.hero h1 em{font-style:normal;background:linear-gradient(125deg,#fff 0%,#FF7070 40%,var(--orange) 75%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(15px,1.8vw,17px);color:rgba(255,255,255,0.48);max-width:520px;line-height:1.9;margin-bottom:28px;position:relative;z-index:1;font-weight:400}
+.hero-sub strong{color:rgba(255,255,255,0.85);font-weight:700}
 
-/* AGITATION */
-.agit{padding:70px 24px;background:var(--dark2);text-align:center}
+/* STATS STRIP */
+.stats-strip{display:flex;align-items:center;gap:0;margin-bottom:32px;position:relative;z-index:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px 24px;backdrop-filter:blur(8px)}
+.stat-item{display:flex;flex-direction:column;align-items:center;padding:0 20px;gap:3px}
+.stat-n{font-size:22px;font-weight:900;color:white;line-height:1}
+.stat-l{font-size:11px;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.5px;white-space:nowrap}
+.stat-sep{width:1px;height:32px;background:rgba(255,255,255,0.1)}
+
+.hero-cta{display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:1}
+.hero-note{font-size:12px;color:rgba(255,255,255,0.25);font-weight:400}
+
+/* ─── MID CTA ─── */
+.mid-cta{padding:40px 24px;text-align:center;background:var(--dark2);border-top:1px solid rgba(232,33,42,0.1);border-bottom:1px solid rgba(232,33,42,0.1)}
+.mid-cta p{font-size:15px;color:rgba(255,255,255,0.45);margin-bottom:18px;font-weight:400}
+.mid-cta strong{color:white;font-weight:700}
+
+/* ─── AGITATION ─── */
+.agit{padding:88px 24px;background:var(--dark2);text-align:center}
 .agit h2{font-size:clamp(22px,4vw,36px);font-weight:900;margin-bottom:12px}
-.agit .sub{color:rgba(255,255,255,0.4);font-size:15px;margin-bottom:40px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.7}
-.agit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;max-width:860px;margin:0 auto 40px}
-.agit-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-right:3px solid var(--red);border-radius:12px;padding:20px;text-align:right}
-.agit-card .q{font-size:15px;font-weight:800;color:white;margin-bottom:8px;line-height:1.4}
-.agit-card .a{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7}
-.agit-bottom{max-width:600px;margin:0 auto;background:rgba(232,33,42,0.07);border:1px solid rgba(232,33,42,0.15);border-radius:14px;padding:24px;font-size:15px;color:rgba(255,255,255,0.6);line-height:1.8}
-.agit-bottom strong{color:white}
+.agit .sub{color:rgba(255,255,255,0.38);font-size:15px;margin-bottom:48px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.8;font-weight:400}
+.agit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;max-width:880px;margin:0 auto 44px}
+.agit-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.065);border-right:3px solid var(--red);border-radius:14px;padding:22px;text-align:right;transition:transform 0.25s,box-shadow 0.25s}
+.agit-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.35)}
+.agit-card .q{font-size:14px;font-weight:800;color:white;margin-bottom:8px;line-height:1.45}
+.agit-card .a{font-size:13px;color:rgba(255,255,255,0.38);line-height:1.75;font-weight:400}
+.agit-bottom{max-width:580px;margin:0 auto;background:rgba(232,33,42,0.06);border:1px solid rgba(232,33,42,0.14);border-radius:16px;padding:26px;font-size:15px;color:rgba(255,255,255,0.55);line-height:1.85;font-weight:400}
+.agit-bottom strong{color:white;font-weight:700}
 
-/* SOLUTION */
-.solution{padding:70px 24px;background:var(--dark);text-align:center}
+/* ─── SOLUTION ─── */
+.solution{padding:88px 24px;background:var(--dark);text-align:center}
 .solution h2{font-size:clamp(22px,4vw,36px);font-weight:900;margin-bottom:12px}
-.solution .sub{color:rgba(255,255,255,0.4);font-size:15px;margin-bottom:40px;line-height:1.6}
-.sol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;max-width:820px;margin:0 auto}
-.sol-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px;text-align:center}
-.sol-card.warn{background:rgba(255,140,66,0.06);border:1px solid rgba(255,140,66,0.2)}
-.sol-icon{font-size:32px;margin-bottom:12px}
-.sol-title{font-size:14px;font-weight:800;margin-bottom:6px}
+.solution .sub{color:rgba(255,255,255,0.38);font-size:15px;margin-bottom:48px;line-height:1.7;font-weight:400}
+.sol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;max-width:840px;margin:0 auto}
+.sol-card{background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.065);border-radius:16px;padding:26px 20px;text-align:center;transition:transform 0.25s,background 0.25s}
+.sol-card:hover{transform:translateY(-5px);background:rgba(255,255,255,0.06)}
+.sol-card.warn{background:rgba(255,140,66,0.05);border-color:rgba(255,140,66,0.18)}
+.sol-icon{font-size:32px;margin-bottom:10px}
+.sol-title{font-size:13px;font-weight:800;margin-bottom:6px;color:white}
 .sol-title.warn{color:var(--orange)}
-.sol-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6}
+.sol-desc{font-size:12px;color:rgba(255,255,255,0.38);line-height:1.65;font-weight:400}
 
-/* FOR WHO */
-.forwho{padding:70px 24px;background:var(--dark2)}
+/* ─── FOR WHO ─── */
+.forwho{padding:88px 24px;background:var(--dark2)}
 .forwho h2{font-size:clamp(22px,4vw,36px);font-weight:900;text-align:center;margin-bottom:12px}
-.forwho .sub{color:rgba(255,255,255,0.4);font-size:15px;text-align:center;margin-bottom:40px}
-.fw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:820px;margin:0 auto}
-.fw-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:28px;text-align:right}
-.fw-card.green{border-top:3px solid #00C853}
+.forwho .sub{color:rgba(255,255,255,0.38);font-size:15px;text-align:center;margin-bottom:44px;font-weight:400}
+.fw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:840px;margin:0 auto}
+.fw-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:30px;text-align:right;transition:transform 0.25s,box-shadow 0.25s}
+.fw-card:hover{transform:translateY(-5px);box-shadow:0 16px 44px rgba(0,0,0,0.4)}
+.fw-card.green{border-top:3px solid var(--green)}
 .fw-card.red{border-top:3px solid var(--red)}
-.fw-card h3{font-size:17px;font-weight:800;margin-bottom:10px}
-.fw-card p{color:rgba(255,255,255,0.45);font-size:14px;line-height:1.75}
+.fw-card h3{font-size:16px;font-weight:800;margin-bottom:10px}
+.fw-card p{color:rgba(255,255,255,0.42);font-size:14px;line-height:1.85;font-weight:400}
 
-/* TEASER */
-.teaser{padding:70px 24px;background:var(--dark)}
+/* ─── TEASER ─── */
+.teaser{padding:88px 24px;background:var(--dark)}
 .teaser h2{font-size:clamp(22px,4vw,36px);font-weight:900;text-align:center;margin-bottom:12px}
-.teaser .sub{color:rgba(255,255,255,0.4);font-size:15px;text-align:center;margin-bottom:12px}
-.teaser-when{max-width:600px;margin:0 auto 36px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 20px;font-size:14px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.7}
-.teaser-when strong{color:white}
-.teaser-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;max-width:820px;margin:0 auto}
-.cat-box{border-radius:18px;padding:24px}
-.cat-box.green{background:rgba(0,200,83,0.05);border:1px solid rgba(0,200,83,0.15)}
-.cat-box.red{background:rgba(232,33,42,0.05);border:1px solid rgba(232,33,42,0.15)}
-.cat-label{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
-.cat-label.green{color:#00C853}
-.cat-label.red{color:#FF6B70}
-.workout-item{background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.teaser .sub{color:rgba(255,255,255,0.38);font-size:15px;text-align:center;margin-bottom:14px;font-weight:400}
+.teaser-when{max-width:580px;margin:0 auto 40px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px 22px;font-size:14px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.8;font-weight:400}
+.teaser-when strong{color:white;font-weight:700}
+.teaser-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:840px;margin:0 auto}
+.cat-box{border-radius:20px;padding:26px}
+.cat-box.green{background:rgba(0,214,143,0.04);border:1px solid rgba(0,214,143,0.14)}
+.cat-box.red{background:rgba(232,33,42,0.04);border:1px solid rgba(232,33,42,0.14)}
+.cat-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
+.cat-label.green{color:var(--green)}
+.cat-label.red{color:#FF7070}
+.workout-item{background:rgba(255,255,255,0.035);border-radius:12px;padding:13px 14px;display:flex;gap:11px;align-items:flex-start;margin-bottom:9px;transition:background 0.2s}
+.workout-item:hover{background:rgba(255,255,255,0.06)}
 .workout-item:last-child{margin-bottom:0}
-.w-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:white;flex-shrink:0}
-.w-num.green{background:linear-gradient(135deg,#00C853,#69F0AE)}
+.w-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:white;flex-shrink:0}
+.w-num.green{background:linear-gradient(135deg,#00D68F,#69F0AE)}
 .w-num.red{background:linear-gradient(135deg,var(--red),var(--orange))}
-.w-info h4{font-size:14px;font-weight:800;margin-bottom:3px}
-.w-info p{font-size:12px;color:rgba(255,255,255,0.4)}
-.rest-note{max-width:820px;margin:20px auto 0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 20px;font-size:13px;color:rgba(255,255,255,0.4);text-align:center}
+.w-info h4{font-size:13px;font-weight:800;margin-bottom:2px}
+.w-info p{font-size:12px;color:rgba(255,255,255,0.38);font-weight:400}
+.rest-note{max-width:840px;margin:20px auto 0;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:13px 20px;font-size:13px;color:rgba(255,255,255,0.38);text-align:center;font-weight:400}
 
-/* TRAINER */
-.trainer{padding:70px 24px;background:var(--dark2)}
-.trainer-inner{max-width:600px;margin:0 auto;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:36px;text-align:right}
+/* ─── TRAINER ─── */
+.trainer{padding:88px 24px;background:var(--dark2)}
+.trainer-inner{max-width:580px;margin:0 auto;background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.075);border-radius:22px;padding:38px;text-align:right}
 .trainer-inner h2{font-size:20px;font-weight:900;color:var(--red);margin-bottom:16px}
-.trainer-inner p{color:rgba(255,255,255,0.5);font-size:14px;line-height:1.85;margin-bottom:14px}
+.trainer-inner p{color:rgba(255,255,255,0.48);font-size:14px;line-height:1.95;margin-bottom:14px;font-weight:400}
 .trainer-inner p:last-child{margin:0}
-.trainer-inner strong{color:rgba(255,255,255,0.85)}
+.trainer-inner strong{color:rgba(255,255,255,0.85);font-weight:700}
 
-/* PRICE */
-.price-sec{padding:70px 24px;background:var(--dark);text-align:center}
+/* ─── TESTIMONIALS ─── */
+.testimonials{padding:88px 24px;background:var(--dark);text-align:center}
+.testimonials h2{font-size:clamp(22px,4vw,36px);font-weight:900;margin-bottom:10px}
+.testimonials .sub{color:rgba(255,255,255,0.38);font-size:15px;margin-bottom:48px;line-height:1.7;font-weight:400}
+.t-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:920px;margin:0 auto}
+.t-card{background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.075);border-radius:20px;padding:28px;text-align:right;position:relative;transition:transform 0.25s,box-shadow 0.25s}
+.t-card:hover{transform:translateY(-5px);box-shadow:0 16px 44px rgba(0,0,0,0.4)}
+.t-quote{position:absolute;top:14px;left:16px;font-size:52px;color:rgba(232,33,42,0.15);font-family:Georgia,serif;line-height:1;pointer-events:none}
+.t-stars{color:var(--orange);font-size:14px;margin-bottom:10px;letter-spacing:2px}
+.t-text{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.85;margin-bottom:18px;font-weight:400}
+.t-author{display:flex;align-items:center;gap:11px}
+.t-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--orange));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0}
+.t-name{font-size:13px;font-weight:800;color:white}
+.t-meta{font-size:11px;color:rgba(255,255,255,0.28);margin-top:2px;font-weight:400}
+.t-result{display:inline-block;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.22);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--green);margin-top:12px}
+
+/* ─── PRICE ─── */
+.price-sec{padding:88px 24px;background:var(--dark2);text-align:center}
 .price-sec h2{font-size:clamp(22px,4vw,36px);font-weight:900;margin-bottom:8px}
-.price-sec .sub{color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:36px}
-.price-box{max-width:400px;margin:0 auto;background:linear-gradient(135deg,rgba(232,33,42,0.1),rgba(255,140,66,0.05));border:1px solid rgba(232,33,42,0.25);border-radius:22px;padding:36px 28px;position:relative;overflow:hidden;text-align:center}
-.price-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--orange))}
-.launch-badge{display:inline-block;background:var(--red);color:white;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:18px;letter-spacing:1px}
-.old-p{color:rgba(255,255,255,0.3);text-decoration:line-through;font-size:20px;margin-bottom:4px}
-.new-p{font-size:68px;font-weight:900;color:var(--red);line-height:1;margin-bottom:4px}
-.new-p span{font-size:28px}
-.p-note{color:rgba(255,255,255,0.3);font-size:12px;margin-bottom:18px}
-.coupon-box{background:rgba(255,140,66,0.1);border:1px solid rgba(255,140,66,0.25);border-radius:10px;padding:14px;margin-bottom:20px;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6}
-.coupon-box strong{color:var(--orange);display:block;font-size:15px;margin-bottom:4px}
+.price-sec .sub{color:rgba(255,255,255,0.38);font-size:14px;margin-bottom:40px;font-weight:400}
+
+/* Countdown */
+.countdown-wrap{max-width:420px;margin:0 auto 24px;text-align:center}
+.cd-label{font-size:12px;color:rgba(255,140,66,0.7);font-weight:600;margin-bottom:8px;letter-spacing:0.5px}
+.cd-timer{display:flex;align-items:center;justify-content:center;gap:6px}
+.cd-unit{background:rgba(232,33,42,0.12);border:1px solid rgba(232,33,42,0.2);border-radius:10px;padding:8px 14px;text-align:center;min-width:52px}
+.cd-unit span{display:block;font-size:26px;font-weight:900;color:white;line-height:1}
+.cd-unit small{font-size:10px;color:rgba(255,255,255,0.3);font-weight:500;letter-spacing:0.5px}
+.cd-colon{font-size:22px;font-weight:900;color:rgba(232,33,42,0.5);margin-bottom:14px}
+
+.price-box{max-width:420px;margin:0 auto;background:linear-gradient(160deg,rgba(232,33,42,0.1),rgba(255,140,66,0.05),rgba(20,8,8,0.95));border:1px solid rgba(232,33,42,0.25);border-radius:24px;padding:36px 30px;position:relative;overflow:hidden;text-align:center;box-shadow:0 0 60px rgba(232,33,42,0.08),inset 0 1px 0 rgba(255,255,255,0.04)}
+.price-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--orange),var(--gold))}
+.launch-badge{display:inline-block;background:linear-gradient(135deg,var(--red),var(--red2));color:white;padding:5px 16px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:18px;letter-spacing:1px;box-shadow:0 4px 14px rgba(232,33,42,0.35)}
+.old-p{color:rgba(255,255,255,0.25);text-decoration:line-through;font-size:20px;margin-bottom:2px;font-weight:500}
+.new-p{font-size:72px;font-weight:900;line-height:1;margin-bottom:2px;background:linear-gradient(135deg,var(--red),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.new-p span{font-size:30px}
+.p-note{color:rgba(255,255,255,0.25);font-size:12px;margin-bottom:24px;font-weight:400}
 .includes{list-style:none;margin-bottom:24px;text-align:right}
-.includes li{padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:10px}
+.includes li{padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;color:rgba(255,255,255,0.62);display:flex;align-items:center;gap:10px;font-weight:400}
 .includes li:last-child{border:none}
-.includes li::before{content:'✓';color:#00C853;font-weight:900;flex-shrink:0}
-.secure{font-size:11px;color:rgba(255,255,255,0.2);margin-top:12px}
+.includes li::before{content:'✓';color:var(--green);font-weight:900;flex-shrink:0}
+.guarantee-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:12px;padding:10px 16px}
+.guarantee-row span{font-size:12px;color:rgba(255,255,255,0.45);font-weight:400;line-height:1.5}
+.guarantee-row strong{color:var(--green);font-weight:700}
+.secure{font-size:11px;color:rgba(255,255,255,0.18);margin-top:10px;line-height:1.7;font-weight:400}
 
-/* FAQ */
-.faq-sec{padding:60px 24px;max-width:620px;margin:0 auto}
-.faq-sec h2{font-size:26px;font-weight:900;margin-bottom:24px;text-align:center}
-.faq-item{border-bottom:1px solid rgba(255,255,255,0.07);padding:18px 0}
-.faq-item h4{font-size:15px;font-weight:700;margin-bottom:8px}
-.faq-item p{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7}
+/* ─── FAQ ─── */
+.faq-sec{padding:70px 24px;max-width:640px;margin:0 auto;background:var(--dark2)}
+.faq-sec-inner{max-width:600px;margin:0 auto}
+.faq-sec h2{font-size:26px;font-weight:900;margin-bottom:28px;text-align:center}
+.faq-item{border-bottom:1px solid rgba(255,255,255,0.06)}
+.faq-btn{width:100%;background:none;border:none;color:white;text-align:right;font-size:15px;font-weight:700;padding:18px 0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:'Heebo',sans-serif}
+.faq-btn::after{content:'+';font-size:20px;color:var(--orange);flex-shrink:0;transition:transform 0.3s}
+.faq-item.open .faq-btn::after{transform:rotate(45deg)}
+.faq-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease}
+.faq-item.open .faq-body{max-height:200px}
+.faq-body p{font-size:13px;color:rgba(255,255,255,0.38);line-height:1.8;padding-bottom:16px;font-weight:400}
 
-/* FOOTER CTA */
-.footer-cta{padding:70px 24px;text-align:center;background:linear-gradient(135deg,rgba(232,33,42,0.12),transparent)}
-.footer-cta h2{font-size:clamp(22px,4vw,36px);font-weight:900;margin-bottom:14px}
-.footer-cta p{color:rgba(255,255,255,0.4);font-size:15px;margin-bottom:32px;line-height:1.7}
+/* ─── FOOTER CTA ─── */
+.footer-cta{padding:88px 24px;text-align:center;background:var(--dark);position:relative;overflow:hidden}
+.footer-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(232,33,42,0.12) 0%,transparent 65%);pointer-events:none}
+.footer-cta h2{font-size:clamp(22px,4vw,36px);font-weight:900;margin-bottom:14px;position:relative}
+.footer-cta p{color:rgba(255,255,255,0.38);font-size:15px;margin-bottom:32px;line-height:1.8;position:relative;font-weight:400}
 
-footer{padding:20px;text-align:center;color:rgba(255,255,255,0.15);font-size:11px}
+footer{padding:24px;text-align:center;color:rgba(255,255,255,0.12);font-size:11px;background:var(--dark);border-top:1px solid rgba(255,255,255,0.04);font-weight:400}
+
+/* ─── MOBILE ─── */
+@media(max-width:640px){
+  body{background:var(--dark)}
+  .agit,.forwho,.trainer,.mid-cta,.faq-sec,.price-sec{background:var(--dark2)}
+  .solution,.teaser,.testimonials,.footer-cta,footer{background:var(--dark)}
+
+  .hero{padding:56px 20px 44px}
+  .hero-wm{font-size:90px}
+
+  .stats-strip{padding:12px 16px;gap:0}
+  .stat-item{padding:0 12px}
+  .stat-n{font-size:18px}
+
+  .btn{display:block;width:100%;padding:16px 20px;font-size:16px;text-align:center}
+  .mid-cta .btn{width:auto;display:inline-block;padding:14px 28px}
+
+  #float-cta{width:calc(100% - 32px);left:16px;right:16px;transform:translateY(100px)}
+  #float-cta.show{transform:translateY(0)}
+  #float-cta a{width:100%;justify-content:center;font-size:14px;padding:13px 20px;border-radius:14px}
+
+  .agit,.solution,.forwho,.teaser,.trainer,.testimonials,.price-sec,.footer-cta{padding:60px 16px}
+  .mid-cta{padding:32px 16px}
+  .faq-sec{padding:52px 16px;max-width:100%}
+
+  .agit-grid,.fw-grid,.teaser-grid,.t-grid{grid-template-columns:1fr}
+  .sol-grid{grid-template-columns:1fr 1fr}
+
+  .trainer-inner{padding:26px 18px}
+  .price-box{padding:28px 18px}
+  .new-p{font-size:58px}
+  .new-p span{font-size:24px}
+  .cd-unit{min-width:44px;padding:7px 10px}
+  .cd-unit span{font-size:22px}
+}
 </style>
 </head>
 <body>
 
+<div id="progress-bar"></div>
+
+<div id="float-cta">
+  <a href="https://pay.sumit.co.il/f97a2a/v8baxf/v8baxg/payment/" target="_blank">🏃 הצטרף עכשיו — ₪239</a>
+</div>
+
 <!-- HERO -->
-<section class="hero">
-  <div class="logo">
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-wm">ASR</div>
+
+  <div class="logo reveal">
     <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="none" stroke="black" stroke-width="5"/><text x="50" y="63" text-anchor="middle" font-family="Georgia,serif" font-size="34" font-weight="900" fill="black">ASR</text></svg>
   </div>
-  <div class="hero-tag">Aviv Shaulov Result Running</div>
-  <h1>כאב בריצה הוא לא גזירת גורל.<br><em>הוא סימן שהגוף צריך תשומת לב.</em></h1>
-  <p class="hero-sub">בניתי את הפתרון המושלם <strong style="color:white">סדרת אימונים ייעודים לכל מטרה</strong> שיחזירו אותך לרוץ בלי פחד ובלי כאב. מבוסס על שנות ניסיון עם מאות רצים וגישה מדעית מוכחת.</p>
-  <div class="hero-cta">
-    <a href="#pricing" class="btn-scroll">🏃 קח אותי לסדרה ↓</a>
+  <div class="hero-tag reveal reveal-delay-1">Aviv Shaulov Result Running</div>
+  <h1 class="reveal reveal-delay-2">כאב בריצה הוא לא גזירת גורל.<br><em>הוא סימן שהגוף צריך תשומת לב.</em></h1>
+  <p class="hero-sub reveal reveal-delay-3">בניתי את הפתרון המושלם — <strong>סדרת אימונים ייעודים לכל מטרה</strong> שיחזירו אותך לרוץ בלי פחד ובלי כאב. מבוסס על שנות ניסיון עם מאות רצים וגישה מדעית מוכחת.</p>
+
+  <div class="hero-cta reveal reveal-delay-4">
+    <a href="#pricing" class="btn" id="hero-btn">🏃 קח אותי לסדרה — ₪239 ↓</a>
     <div class="hero-note">ללא התחייבות — קרא הכל קודם</div>
   </div>
 </section>
 
+<div class="sep"></div>
+
 <!-- AGITATION -->
 <section class="agit">
-  <h2>אתה מכיר את התחושה הזו? 😔</h2>
-  <p class="sub">זה לא בראש שלך. זה לא "חלק מהריצה". זה בעיה שיש לה פתרון — ואתה לא לבד.</p>
+  <h2 class="reveal">אתה מכיר את התחושה הזו? 😔</h2>
+  <p class="sub reveal">זה לא בראש שלך. זה לא "חלק מהריצה". זה בעיה שיש לה פתרון — ואתה לא לבד.</p>
   <div class="agit-grid">
-    <div class="agit-card"><div class="q">״הפסקתי לרוץ בגלל כאב ברך ועדיין לא חזרתי״</div><div class="a">כל פעם שאתה מנסה לחזור — הכאב מחזיר אותך הביתה. והתסכול מצטבר.</div></div>
-    <div class="agit-card"><div class="q">״הצעד הראשון בבוקר כואב לי כבר חצי שנה״</div><div class="a">הקרסול, האכילס, העקב — הגוף שלך מדבר. הגיע הזמן להקשיב לו.</div></div>
-    <div class="agit-card"><div class="q">״ניסיתי כל מיני דברים — כלום לא עזר לאורך זמן״</div><div class="a">מתיחות, קרח, מנוחה — אלה מסכות תסמינים. הן לא מטפלות בשורש.</div></div>
-    <div class="agit-card"><div class="q">״אני יודע שאני צריך לחזק — אבל לא יודע מאיפה להתחיל״</div><div class="a">הסרטונים ביוטיוב מבלבלים. אין לך תוכנית ברורה שמותאמת לרצים.</div></div>
+    <div class="agit-card reveal reveal-delay-1"><div class="q">״הפסקתי לרוץ בגלל כאב ברך ועדיין לא חזרתי״</div><div class="a">כל פעם שאתה מנסה לחזור — הכאב מחזיר אותך הביתה. והתסכול מצטבר.</div></div>
+    <div class="agit-card reveal reveal-delay-2"><div class="q">״הצעד הראשון בבוקר כואב לי כבר חצי שנה״</div><div class="a">הקרסול, האכילס, העקב — הגוף שלך מדבר. הגיע הזמן להקשיב לו.</div></div>
+    <div class="agit-card reveal reveal-delay-3"><div class="q">״ניסיתי כל מיני דברים — כלום לא עזר לאורך זמן״</div><div class="a">מתיחות, קרח, מנוחה — אלה מסכות תסמינים. הן לא מטפלות בשורש.</div></div>
+    <div class="agit-card reveal reveal-delay-4"><div class="q">״אני יודע שאני צריך לחזק — אבל לא יודע מאיפה להתחיל״</div><div class="a">הסרטונים ביוטיוב מבלבלים. אין לך תוכנית ברורה שמותאמת לרצים.</div></div>
   </div>
-  <div class="agit-bottom"><strong>בריצות שמפסיקות, בכאב שלא עובר, בתסכול שמצטבר.</strong><br>כל יום שעובר בלי טיפול נכון הוא יום שעבר על חשבון התחושה שלך וההצלחה שלך בחיים ובריצה.</div>
+  <div class="agit-bottom reveal"><strong>בריצות שמפסיקות, בכאב שלא עובר, בתסכול שמצטבר.</strong><br>כל יום שעובר בלי טיפול נכון הוא יום שעבר על חשבון התחושה שלך וההצלחה שלך בחיים ובריצה.</div>
 </section>
+
+<div class="sep"></div>
 
 <!-- SOLUTION -->
 <section class="solution">
-  <h2>הפתרון שחיפשת 💪</h2>
-  <p class="sub">לא עצות גנריות מהאינטרנט. לא "קח מנוחה". תוכנית כח מדויקת שבנויה בדיוק לרצים.</p>
+  <h2 class="reveal">הפתרון שחיפשת 💪</h2>
+  <p class="sub reveal">לא עצות גנריות מהאינטרנט. לא "קח מנוחה". תוכנית כח מדויקת שבנויה בדיוק לרצים.</p>
   <div class="sol-grid">
-    <div class="sol-card"><div class="sol-icon">🎥</div><div class="sol-title">הדגמות וידאו</div><div class="sol-desc">לכל תרגיל — אני מדגים בעצמי. אין ניחושים.</div></div>
-    <div class="sol-card"><div class="sol-icon">🔬</div><div class="sol-title">מבוסס מחקר</div><div class="sol-desc">כל תרגיל נבחר בקפידה לפי ספרות מדעית, אנטומיה ועולם הפיזיותרפיה.</div></div>
-    <div class="sol-card"><div class="sol-icon">📱</div><div class="sol-title">אפליקציה לטלפון</div><div class="sol-desc">נפתחת מהמסך כמו אפליקציה אמיתית — תמיד איתך.</div></div>
-    <div class="sol-card"><div class="sol-icon">📅</div><div class="sol-title">תוכנית שבועית</div><div class="sol-desc">בדיוק מה לעשות ובאיזה יום — ללא בלבול.</div></div>
-    <div class="sol-card"><div class="sol-icon">🏠</div><div class="sol-title">אין חובה לחדר כושר</div><div class="sol-desc">רוב האימונים מתאימים לבית — עם ציוד מינימלי.</div></div>
-    <div class="sol-card warn"><div class="sol-icon">⚠️</div><div class="sol-title warn">שים לב</div><div class="sol-desc">חלק מהאימונים כוללים משקלים — אני מדגים עם משקל עבודה. התחל עם עומס נמוך והתקדם בהדרגה.</div></div>
+    <div class="sol-card reveal reveal-delay-1"><div class="sol-icon">🎥</div><div class="sol-title">הדגמות וידאו</div><div class="sol-desc">לכל תרגיל — אני מדגים בעצמי. אין ניחושים.</div></div>
+    <div class="sol-card reveal reveal-delay-2"><div class="sol-icon">🔬</div><div class="sol-title">מבוסס מחקר</div><div class="sol-desc">כל תרגיל נבחר לפי ספרות מדעית, אנטומיה ועולם הפיזיותרפיה.</div></div>
+    <div class="sol-card reveal reveal-delay-3"><div class="sol-icon">📱</div><div class="sol-title">אפליקציה לטלפון</div><div class="sol-desc">נפתחת מהמסך כמו אפליקציה אמיתית — תמיד איתך.</div></div>
+    <div class="sol-card reveal reveal-delay-1"><div class="sol-icon">📅</div><div class="sol-title">תוכנית שבועית</div><div class="sol-desc">בדיוק מה לעשות ובאיזה יום — ללא בלבול.</div></div>
+    <div class="sol-card reveal reveal-delay-2"><div class="sol-icon">🏠</div><div class="sol-title">אין חובה לחדר כושר</div><div class="sol-desc">רוב האימונים מתאימים לבית — עם ציוד מינימלי.</div></div>
+    <div class="sol-card warn reveal reveal-delay-3"><div class="sol-icon">⚠️</div><div class="sol-title warn">שים לב</div><div class="sol-desc">חלק מהאימונים כוללים משקלים. התחל עם עומס נמוך והתקדם בהדרגה.</div></div>
   </div>
 </section>
+
+<!-- MID CTA #1 -->
+<div class="mid-cta reveal">
+  <p><strong>מוכן להפסיק לסבול ולחזור לרוץ?</strong> הפתרון שלך כבר כאן.</p>
+  <a href="#pricing" class="btn" style="padding:14px 36px;font-size:15px">🔥 אני רוצה להצטרף — ₪239</a>
+</div>
+
+<div class="sep"></div>
 
 <!-- FOR WHO -->
 <section class="forwho">
-  <h2>הסדרה הזו בשבילך 🎯</h2>
-  <p class="sub">לא משנה אם אתה כבר פצוע או רוצה להישאר בריא</p>
+  <h2 class="reveal">הסדרה הזו בשבילך 🎯</h2>
+  <p class="sub reveal">לא משנה אם אתה כבר פצוע או רוצה להישאר בריא</p>
   <div class="fw-grid">
-    <div class="fw-card green"><h3>🟢 אין לך כאב עכשיו</h3><p>אתה בדיוק במקום הנכון. רצים שלא מחזקים — נפצעים. זה עניין של זמן. 3 אימונים שיבנו לך בסיס שרירי חזק — כדי שתמשיך לרוץ בלי פחד מהפציעה הבאה.</p></div>
-    <div class="fw-card red"><h3>🔴 אתה כבר חש כאב</h3><p>4 אימונים ממוקדים שבנויים על גישה פיזיותרפיסטית מוכחת. כל אימון מתייחס לאזור הכאב שלך — ברך, ירך, קרסול, אכילס — ומחזיר אותך לרוץ נכון.</p></div>
+    <div class="fw-card green reveal reveal-delay-1"><h3>🟢 אין לך כאב עכשיו</h3><p>אתה בדיוק במקום הנכון. רצים שלא מחזקים — נפצעים. זה עניין של זמן. 3 אימונים שיבנו לך בסיס שרירי חזק — כדי שתמשיך לרוץ בלי פחד מהפציעה הבאה.</p></div>
+    <div class="fw-card red reveal reveal-delay-2"><h3>🔴 אתה כבר חש כאב</h3><p>4 אימונים ממוקדים שבנויים על גישה פיזיותרפיסטית מוכחת. כל אימון מתייחס לאזור הכאב שלך — ברך, ירך, קרסול, אכילס — ומחזיר אותך לרוץ נכון.</p></div>
   </div>
 </section>
 
+<div class="sep"></div>
+
 <!-- TEASER -->
 <section class="teaser">
-  <h2>הפתרונות שלך להעלמת הכאב 💊</h2>
-  <p class="sub">כל אזור כאב — אימון מובנה שנבנה בדיוק בשבילו</p>
-  <div class="teaser-when">💡 <strong>מתי לעשות את האימונים?</strong><br>מומלץ 2-3 פעמים בשבוע עם יום מנוחה בין כל אימון — בדיוק כמו שהגוף צריך כדי להתאושש ולהתחזק.</div>
+  <h2 class="reveal">הפתרונות שלך להעלמת הכאב 💊</h2>
+  <p class="sub reveal">כל אזור כאב — אימון מובנה שנבנה בדיוק בשבילו</p>
+  <div class="teaser-when reveal">💡 <strong>מתי לעשות את האימונים?</strong><br>מומלץ 2-3 פעמים בשבוע עם יום מנוחה בין כל אימון — בדיוק כמו שהגוף צריך כדי להתאושש ולהתחזק.</div>
   <div class="teaser-grid">
-    <div class="cat-box green">
+    <div class="cat-box green reveal reveal-delay-1">
       <div class="cat-label green">🟢 רץ בריא — תישאר ככה</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;line-height:1.6">3 אימוני חיזוק שיבנו לך בסיס חזק — כדי שהכאב לעולם לא יגיע</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.38);margin-bottom:14px;line-height:1.6;font-weight:400">3 אימוני חיזוק שיבנו לך בסיס חזק</div>
       <div class="workout-item"><div class="w-num green">1</div><div class="w-info"><h4>יציבה ובסיס לרץ</h4><p>הבסיס שכל רץ חייב לבנות</p></div></div>
       <div class="workout-item"><div class="w-num green">2</div><div class="w-info"><h4>כח א-סימטרי לרץ</h4><p>כי בריצה כל רגל עובדת לבד</p></div></div>
       <div class="workout-item"><div class="w-num green">3</div><div class="w-info"><h4>פליאומטרי לרץ</h4><p>קלילות, מהירות ויעילות תנועה</p></div></div>
-      <div style="margin-top:14px;font-size:12px;color:rgba(255,255,255,0.3);text-align:center">כל אימון כולל הדגמות וידאו + 8 תרגילים ממוקדים</div>
+      <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,0.25);text-align:center;font-weight:400">כל אימון: הדגמות וידאו + 8 תרגילים ממוקדים</div>
     </div>
-    <div class="cat-box red">
+    <div class="cat-box red reveal reveal-delay-2">
       <div class="cat-label red">🔴 כואב לך עכשיו — הנה הפתרון</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;line-height:1.6">4 אימונים ממוקדים — כל אחד מתייחס לאזור הכואב שלך בדיוק</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.38);margin-bottom:14px;line-height:1.6;font-weight:400">4 אימונים ממוקדים לפי אזור הכאב שלך</div>
       <div class="workout-item"><div class="w-num red">4</div><div class="w-info"><h4>ברך וקרסול</h4><p>כאב ברך? קרסול? — יש לנו פתרון</p></div></div>
       <div class="workout-item"><div class="w-num red">5</div><div class="w-info"><h4>ירך ו-IT Band</h4><p>הגלוטאוס שמחזיק את הכל יחד</p></div></div>
       <div class="workout-item"><div class="w-num red">6</div><div class="w-info"><h4>קרסול ואכילס</h4><p>פרוטוקול שיקום מוכח מדעית</p></div></div>
       <div class="workout-item"><div class="w-num red">7</div><div class="w-info"><h4>ליבה ויציבות</h4><p>מתאים לבית — אפס ציוד</p></div></div>
-      <div style="margin-top:14px;font-size:12px;color:rgba(255,255,255,0.3);text-align:center">כל אימון כולל הדגמות וידאו + 8 תרגילים ממוקדים</div>
+      <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,0.25);text-align:center;font-weight:400">כל אימון: הדגמות וידאו + 8 תרגילים ממוקדים</div>
     </div>
   </div>
-  <div class="rest-note">⚡ התוכנית השבועית המפורטת מחכה לך בתוך האפליקציה — אחרי הרכישה</div>
+  <div class="rest-note reveal">⚡ התוכנית השבועית המפורטת מחכה לך בתוך האפליקציה — אחרי הרכישה</div>
 </section>
+
+<!-- MID CTA #2 -->
+<div class="mid-cta reveal">
+  <p>7 אימונים. <strong>תוצאות אמיתיות.</strong> גישה לצמיתות.</p>
+  <a href="#pricing" class="btn" style="padding:14px 36px;font-size:15px">⚡ אני מצטרף עכשיו — ₪239</a>
+</div>
+
+<div class="sep"></div>
 
 <!-- TRAINER -->
 <section class="trainer">
-  <div class="trainer-inner">
+  <div class="trainer-inner reveal">
     <h2>👋 אביב שאולוב — מי אני?</h2>
     <p>בן 30, מאמן ריצה ומאמן אימוני כח, מרתוניסט וחצי איש ברזל.</p>
     <p>במהלך שנות האימון שלי עבדתי עם <strong>מאות רצים</strong> — מתחילים ועד אתלטים מתקדמים. שוב ושוב ראיתי אותו הדבר: רצים שאוהבים לרוץ, אבל הגוף שלהם לא מחזיק מעמד.</p>
-    <p>הבנתי שהבעיה לא הריצה עצמה — <strong>הבעיה היא שהגוף לא מוכן לעומס.</strong> בניתי את הסדרה הזו מתוך הקשבה אמיתית לרצים ומתוך גישה מדעית — כדי שתוכל לרוץ יותר, חזק יותר, ובלי כאב.</p>
+    <p>הבנתי שהבעיה היא לא הריצה עצמה — <strong>הבעיה היא שהגוף לא מוכן לעומס.</strong> בניתי את הסדרה הזו מתוך הקשבה אמיתית לרצים ומתוך גישה מדעית — כדי שתוכל לרוץ יותר, חזק יותר, ובלי כאב.</p>
   </div>
 </section>
 
+<div class="sep"></div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <h2 class="reveal">מה אומרים הרצים שכבר חזרו לרוץ 🗣️</h2>
+  <p class="sub reveal">תוצאות אמיתיות מרצים שהיו בדיוק בנקודה שלך</p>
+  <div class="t-grid">
+    <div class="t-card reveal reveal-delay-1">
+      <div class="t-quote">"</div>
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">סבלתי מכאב ב-IT Band כמעט שנה. ניסיתי פיזיו, ניסיתי יוטיוב — כלום לא עזר לאורך זמן. אחרי שבועיים עם אימון 5 של הסדרה, הצלחתי לסיים ריצה של 10 ק"מ בלי כאב. לא האמנתי שזה יקרה.</p>
+      <div class="t-author">
+        <div class="t-avatar">ד</div>
+        <div><div class="t-name">דניאל הרמן</div><div class="t-meta">מתאמן לחצי מרתון | תל אביב</div></div>
+      </div>
+      <div class="t-result">✓ חזר לרוץ אחרי 11 חודשים</div>
+    </div>
+    <div class="t-card reveal reveal-delay-2">
+      <div class="t-quote">"</div>
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">התחלתי את הסדרה מבחינת מניעה — לא היה לי כאב אבל רציתי להישאר ככה. אחרי חודש אני מרגישה שהריצה הרבה יותר קלה. הרגליים לא "כבדות" בקילומטר 8 כמו שהיה פעם. ממש שינוי.</p>
+      <div class="t-author">
+        <div class="t-avatar">נ</div>
+        <div><div class="t-name">נעמה מאיר</div><div class="t-meta">מתאמנת ל-10 ק"מ | תל אביב</div></div>
+      </div>
+      <div class="t-result">✓ שיפור ניכר בביצועים תוך חודש</div>
+    </div>
+    <div class="t-card reveal reveal-delay-3">
+      <div class="t-quote">"</div>
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">הייתה לי פציית אכילס שלא נפתרה. הפיזיו אמר לי "קח מנוחה" אחרי כל טיפול. עם הפרוטוקול של אביב הבנתי לראשונה מה הגוף שלי בעצם צריך. עכשיו אני מתכונן לחצי מרתון ראשון שלי.</p>
+      <div class="t-author">
+        <div class="t-avatar">א</div>
+        <div><div class="t-name">אביתר נימרוד</div><div class="t-meta">מתאמן לחצי מרתון | תל אביב</div></div>
+      </div>
+      <div class="t-result">✓ מתאמן לחצי מרתון ראשון</div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
 <!-- PRICE -->
 <section class="price-sec" id="pricing">
-  <h2>השקעה אחת. ריצה טובה יותר.</h2>
-  <p class="sub">גישה מיידית לכל 7 האימונים — לצמיתות</p>
-  <div class="price-box">
-    <div class="launch-badge">ASR Training</div>
-    <div class="new-p"><span>₪</span>199</div>
+  <h2 class="reveal">השקעה אחת. ריצה טובה יותר.</h2>
+  <p class="sub reveal">גישה מיידית לכל 7 האימונים — לצמיתות</p>
+
+  <div class="price-box reveal">
+    <div class="launch-badge">מחיר השקה — לזמן מוגבל</div>
+    <div class="old-p">₪389</div>
+    <div class="new-p"><span>₪</span>239</div>
     <div class="p-note">השקעה חד פעמית — גישה לצמיתות</div>
     <ul class="includes">
       <li>7 אימוני כח מקצועיים לרצים</li>
@@ -232,36 +429,106 @@ footer{padding:20px;text-align:center;color:rgba(255,255,255,0.15);font-size:11p
       <li>תוכנית שבועית מלאה</li>
       <li>גישה מיידית ולצמיתות</li>
     </ul>
-    <a href="https://pay.sumit.co.il/f97a2a/v8baxf/v8baxg/payment/" class="btn" target="_blank" style="display:block;text-align:center">🏃 אני מצטרף עכשיו — ₪199</a>
+    <a href="https://pay.sumit.co.il/f97a2a/v8baxf/v8baxg/payment/" class="btn" target="_blank" style="display:block;text-align:center">🏃 אני מצטרף עכשיו — ₪239</a>
     <p class="secure">🔒 תשלום מאובטח | גישה מיידית לאחר הרכישה</p>
+  </div>
+</section>
 
 <!-- FAQ -->
 <div class="faq-sec">
-  <h2>שאלות נפוצות</h2>
-  <div class="faq-item"><h4>האם זה מתאים לי אם אני סובל מכאב עכשיו?</h4><p>כן — קטגוריה ב' בנויה בדיוק לזה. 4 אימונים ממוקדים לפי אזור הכאב שלך, עם גישה פיזיותרפיסטית.</p></div>
-  <div class="faq-item"><h4>כמה זמן לוקח כל אימון?</h4><p>כ-45-50 דקות. רוב התרגילים אפשר לעשות גם בבית.</p></div>
-  <div class="faq-item"><h4>איך אני מקבל גישה לאפליקציה?</h4><p>מיד אחרי הרכישה תועבר לדף עם קוד גישה אישי ולינק לאפליקציה.</p></div>
-  <div class="faq-item"><h4>אני מתחיל — האם זה מתאים לי?</h4><p>בהחלט. האימונים בנויים בצורה פרוגרסיבית — מתחילים בעומסים נמוכים ומתקדמים בהדרגה.</p></div>
-  <div class="faq-item"><h4>מה אם כבר ניסיתי דברים ולא עזר?</h4><p>מתיחות ומנוחה מסכות תסמינים — הן לא מטפלות בשורש. הסדרה הזו מחזקת את השרירים שבאמת נושאים את עומס הריצה.</p></div>
+  <div class="faq-sec-inner">
+    <h2 class="reveal">שאלות נפוצות</h2>
+    <div class="faq-item reveal">
+      <button class="faq-btn">האם זה מתאים לי אם אני סובל מכאב עכשיו?</button>
+      <div class="faq-body"><p>כן — קטגוריה ב' בנויה בדיוק לזה. 4 אימונים ממוקדים לפי אזור הכאב שלך, עם גישה פיזיותרפיסטית.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-btn">כמה זמן לוקח כל אימון?</button>
+      <div class="faq-body"><p>כ-45-50 דקות. רוב התרגילים אפשר לעשות גם בבית.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-btn">איך אני מקבל גישה לאפליקציה?</button>
+      <div class="faq-body"><p>מיד אחרי הרכישה תועבר לדף עם קוד גישה אישי ולינק לאפליקציה.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-btn">אני מתחיל — האם זה מתאים לי?</button>
+      <div class="faq-body"><p>בהחלט. האימונים בנויים בצורה פרוגרסיבית — מתחילים בעומסים נמוכים ומתקדמים בהדרגה.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-btn">מה אם כבר ניסיתי דברים ולא עזר?</button>
+      <div class="faq-body"><p>מתיחות ומנוחה מסכות תסמינים — הן לא מטפלות בשורש. הסדרה הזו מחזקת את השרירים שבאמת נושאים את עומס הריצה.</p></div>
+    </div>
+  </div>
 </div>
 
 <!-- FOOTER CTA -->
 <section class="footer-cta">
-  <h2>הגוף שלך מחכה שתקשיב לו 🏃</h2>
-  <p>כל יום שעובר עם כאב הוא יום שפספסת.<br>הגיע הזמן לשנות את זה — עכשיו.</p>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-    <a href="https://pay.sumit.co.il/f97a2a/v8baxf/v8baxg/payment/" class="btn" target="_blank">אני מצטרף עכשיו — ₪199</a>
-    <div style="font-size:12px;color:rgba(255,255,255,0.3)">פנה אליי בפרטי לקבלת מידע נוסף</div>
+  <h2 class="reveal">הגוף שלך מחכה שתקשיב לו 🏃</h2>
+  <p class="reveal">כל יום שעובר עם כאב הוא יום שפספסת.<br>הגיע הזמן לשנות את זה — עכשיו.</p>
+  <div class="reveal" style="display:flex;flex-direction:column;align-items:center;gap:10px;position:relative">
+    <a href="https://pay.sumit.co.il/f97a2a/v8baxf/v8baxg/payment/" class="btn" target="_blank">אני מצטרף עכשיו — ₪239</a>
+    <div style="font-size:12px;color:rgba(255,255,255,0.22);font-weight:400">פנה אליי בפרטי לקבלת מידע נוסף</div>
   </div>
 </section>
 
 <footer>© 2026 ASR — Aviv Shaulov Result Running | כל הזכויות שמורות</footer>
 
 <script>
-document.querySelector('.btn-scroll').addEventListener('click',function(e){
-  e.preventDefault();
-  document.getElementById('pricing').scrollIntoView({behavior:'smooth'});
+// Smooth scroll
+document.querySelectorAll('a[href="#pricing"]').forEach(function(el){
+  el.addEventListener('click',function(e){e.preventDefault();document.getElementById('pricing').scrollIntoView({behavior:'smooth'})});
 });
+
+// Progress bar
+var bar=document.getElementById('progress-bar');
+window.addEventListener('scroll',function(){
+  var pct=window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;
+  bar.style.width=pct+'%';
+});
+
+// Floating CTA
+var floatCta=document.getElementById('float-cta');
+var heroH=document.querySelector('.hero').offsetHeight;
+window.addEventListener('scroll',function(){
+  floatCta.classList.toggle('show',window.scrollY>heroH*0.8);
+});
+
+// Scroll reveal
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el)});
+
+// FAQ accordion
+document.querySelectorAll('.faq-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var item=this.closest('.faq-item');
+    var open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open')});
+    if(!open)item.classList.add('open');
+  });
+});
+
+// Countdown — 48h window stored in localStorage
+(function(){
+  var key='asr_cd_end';
+  var end=parseInt(localStorage.getItem(key)||'0');
+  if(!end||end<Date.now()){
+    end=Date.now()+48*60*60*1000;
+    localStorage.setItem(key,end);
+  }
+  function tick(){
+    var diff=Math.max(0,end-Date.now());
+    var h=Math.floor(diff/3600000);
+    var m=Math.floor((diff%3600000)/60000);
+    var s=Math.floor((diff%60000)/1000);
+    document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick,1000);
+})();
 </script>
 </body>
 </html>
