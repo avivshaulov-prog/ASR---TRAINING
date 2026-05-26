@@ -79,27 +79,53 @@ h1 em{font-style:normal;color:#E8212A}
 </div>
 
 <script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTQve2Yy4vz9vnp6WLpS7x-V1uaCxcx7Cm-d7-ahxSEbIiRGoDTtIL6h1LplRBIZfx/exec';
+const SECRET = 'ASRShaulov2025SecretKey#RunStrong';
+
+function generateCode(seed) {
+  const input = seed.toString() + SECRET;
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'ASR';
+  let n = Math.abs(h);
+  for (let i = 0; i < 5; i++) {
+    code += chars[n % chars.length];
+    n = Math.floor(n / chars.length);
+  }
+  return code;
+}
+
 (function() {
   const params = new URLSearchParams(window.location.search);
-  const code   = (params.get('code') || '').toUpperCase().trim();
-  const name   = params.get('name') || '';
+  const tid   = params.get('tid') || params.get('TransactionId') || '';
+  const name  = params.get('name') || params.get('PayerName') || '';
+  const email = params.get('email') || params.get('PayerEmail') || '';
 
-  // הצגת הקוד
-  const display = code || 'ASR2025';
-  document.getElementById('accessCode').textContent = display;
-  document.getElementById('codeInStep').textContent = display;
+  const seed = tid || email || Date.now().toString();
+  const code = generateCode(seed);
 
-  // הצגת שם אם התקבל מסאמיט
+  document.getElementById('accessCode').textContent = code;
+  document.getElementById('codeInStep').textContent = code;
+
   if (name) {
     const decoded = decodeURIComponent(name);
     document.getElementById('mainTitle').innerHTML =
       decoded + ', תשלום אושר.<br><em>עכשיו תתחיל לרוץ אחרת.</em>';
   }
 
-  // שמירת הקוד בזיכרון הדפדפן - לנוחות הכניסה לאפליקציה
-  if (code) {
-    localStorage.setItem('asr_pending_code', code);
-  }
+  localStorage.setItem('asr_pending_code', code);
+
+  // שמירה ברקע לגוגל שיטס
+  const logUrl = APPS_SCRIPT_URL + '?action=log'
+    + '&name='  + encodeURIComponent(name)
+    + '&email=' + encodeURIComponent(email)
+    + '&tid='   + encodeURIComponent(tid)
+    + '&code='  + encodeURIComponent(code);
+  fetch(logUrl, {mode: 'no-cors'}).catch(function(){});
 })();
 
 function copyCode() {

@@ -24,8 +24,34 @@ function doGet(e) {
     return validateCode(e);
   }
 
+  if (action === 'log') {
+    return logPurchase(e);
+  }
+
   // ברירת מחדל: עיבוד רכישה מסאמיט
   return processPurchase(e);
+}
+
+// שמירת רכישה ברקע (ללא redirect)
+function logPurchase(e) {
+  const name  = decodeParam(e.parameter.name  || '');
+  const email = decodeParam(e.parameter.email || '');
+  const tid   = e.parameter.tid  || '';
+  const code  = e.parameter.code || '';
+
+  try {
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['תאריך', 'שם', 'אימייל', 'מזהה עסקה', 'קוד', 'סטטוס', 'כניסה אחרונה', 'הערות']);
+      sheet.getRange(1,1,1,8).setFontWeight('bold');
+      sheet.setFrozenRows(1);
+    }
+    sheet.appendRow([new Date().toLocaleString('he-IL'), name, email, tid, code, 'פעיל', '', '']);
+  } catch(err) {
+    Logger.log('שגיאת log: ' + err);
+  }
+
+  return ContentService.createTextOutput('ok').setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ====================================================
@@ -146,4 +172,70 @@ function generateCode(seed) {
 
 function decodeParam(str) {
   try { return decodeURIComponent(str); } catch(e) { return str; }
+}
+
+// ====================================================
+// עיצוב הטבלה - הרץ פעם אחת מ-Apps Script
+// ====================================================
+function formatSheet() {
+  const ss    = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheets()[0];
+
+  sheet.setName('לקוחות ASR');
+
+  // רוחב עמודות
+  sheet.setColumnWidth(1, 160); // תאריך
+  sheet.setColumnWidth(2, 140); // שם
+  sheet.setColumnWidth(3, 200); // אימייל
+  sheet.setColumnWidth(4, 160); // מזהה עסקה
+  sheet.setColumnWidth(5, 120); // קוד
+  sheet.setColumnWidth(6, 90);  // סטטוס
+  sheet.setColumnWidth(7, 160); // כניסה אחרונה
+  sheet.setColumnWidth(8, 160); // הערות
+
+  // כותרות
+  const headers = ['📅 תאריך רכישה', '👤 שם מלא', '📧 אימייל', '🔢 מזהה עסקה', '🔑 קוד גישה', '✅ סטטוס', '🕐 כניסה אחרונה', '📝 הערות'];
+  const headerRow = sheet.getRange(1, 1, 1, 8);
+  headerRow.setValues([headers]);
+  headerRow.setBackground('#1a0a0a');
+  headerRow.setFontColor('#FF8C42');
+  headerRow.setFontWeight('bold');
+  headerRow.setFontSize(11);
+  headerRow.setHorizontalAlignment('center');
+  headerRow.setVerticalAlignment('middle');
+  sheet.setRowHeight(1, 40);
+  sheet.setFrozenRows(1);
+
+  // עיצוב שורות נתונים
+  const lastRow = Math.max(sheet.getLastRow(), 2);
+  if (lastRow > 1) {
+    for (let i = 2; i <= lastRow; i++) {
+      const row = sheet.getRange(i, 1, 1, 8);
+      row.setBackground(i % 2 === 0 ? '#fff8f8' : '#ffffff');
+      row.setFontSize(10);
+      row.setVerticalAlignment('middle');
+      sheet.setRowHeight(i, 32);
+
+      // צבע לעמודת סטטוס
+      const statusCell = sheet.getRange(i, 6);
+      const status = statusCell.getValue();
+      if (status === 'פעיל') {
+        statusCell.setFontColor('#00A844');
+        statusCell.setFontWeight('bold');
+      } else if (status === 'חסום') {
+        statusCell.setFontColor('#E8212A');
+        statusCell.setFontWeight('bold');
+      }
+
+      // קוד גישה בולט
+      sheet.getRange(i, 5).setFontWeight('bold').setFontColor('#E8212A');
+    }
+  }
+
+  // גבולות
+  const allData = sheet.getRange(1, 1, lastRow, 8);
+  allData.setBorder(true, true, true, true, true, true, '#e0d0d0', SpreadsheetApp.BorderStyle.SOLID);
+
+  SpreadsheetApp.flush();
+  Logger.log('הטבלה עוצבה בהצלחה!');
 }
