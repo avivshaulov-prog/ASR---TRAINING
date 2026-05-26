@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תשלום אושר - ASR</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#0f0707;color:#fff;direction:rtl;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:40px 24px;position:relative;overflow-y:auto}
+body::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(232,33,42,0.15) 0%,transparent 65%);pointer-events:none}
+.card{max-width:440px;width:100%;text-align:center;position:relative;z-index:1}
+.logo{width:100px;height:100px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 0 40px rgba(232,33,42,0.4)}
+.logo svg{width:78px;height:78px}
+h1{font-size:28px;font-weight:900;margin-bottom:10px;line-height:1.3;color:white}
+h1 em{font-style:normal;color:#E8212A}
+.sub{color:rgba(255,255,255,0.45);font-size:15px;line-height:1.7;margin-bottom:28px}
+.code-box{background:rgba(255,255,255,0.05);border:2px solid rgba(255,140,66,0.4);border-radius:16px;padding:20px;margin-bottom:20px;position:relative}
+.code-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-bottom:8px}
+.code{font-size:34px;font-weight:900;letter-spacing:6px;color:#FF8C42;margin-bottom:6px;cursor:pointer;transition:opacity 0.15s}
+.code:active{opacity:0.7}
+.copy-hint{font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:4px}
+#copyMsg{font-size:12px;color:#00D68F;min-height:16px;font-weight:700}
+.steps{border:1px solid rgba(255,255,255,0.08);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.step{display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);text-align:right}
+.step:last-child{border-bottom:none}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#E8212A,#FF8C42);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:white;flex-shrink:0}
+.step-text{font-size:14px;color:rgba(255,255,255,0.65)}
+.step-text strong{color:white}
+.inst{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px;margin-bottom:20px;text-align:right}
+.inst-title{font-size:14px;font-weight:800;color:white;margin-bottom:14px;text-align:center}
+.inst-phone{font-size:13px;font-weight:800;color:white;margin-bottom:8px}
+.inst-row{font-size:13px;color:rgba(255,255,255,0.55);padding:4px 0;line-height:1.6}
+.inst-sep{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:12px 0}
+.btn{display:block;background:linear-gradient(135deg,#E8212A,#FF8C42);color:white;padding:18px;border-radius:50px;font-size:17px;font-weight:800;text-decoration:none;box-shadow:0 8px 32px rgba(232,33,42,0.4);margin-bottom:16px;text-align:center}
+.note{font-size:11px;color:rgba(255,255,255,0.2)}
+.note strong{color:rgba(255,255,255,0.35)}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="logo">
+    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="none" stroke="black" stroke-width="5"/><text x="50" y="63" text-anchor="middle" font-family="Georgia,serif" font-size="34" font-weight="900" fill="black">ASR</text></svg>
+  </div>
+
+  <h1 id="mainTitle">תשלום אושר.<br><em>עכשיו תתחיל לרוץ אחרת.</em></h1>
+  <p class="sub">הגישה שלך מוכנה — קוד אישי שנוצר רק עבורך.<br>כנס לאפליקציה ותתחיל להתאמן 🏃</p>
+
+  <div class="code-box">
+    <div class="code-label">קוד הגישה האישי שלך</div>
+    <div class="code" id="accessCode" onclick="copyCode()">טוען...</div>
+    <div class="copy-hint">לחץ על הקוד להעתקה</div>
+    <div id="copyMsg"></div>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-text">לחץ על כפתור הכניסה למטה</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text">הכנס את הקוד האישי שלך <strong id="codeInStep">...</strong></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text">כל <strong>7 אימונים</strong> פתוחים! 🏃</div></div>
+  </div>
+
+  <a href="https://asr-legsprogram.com/app" class="btn">🏃 כנס לאפליקציה</a>
+
+  <div class="inst">
+    <div class="inst-title">📱 איך שומרים את האפליקציה על המסך?</div>
+    <div class="inst-phone">📱 אייפון — ספארי בלבד</div>
+    <div class="inst-row">1. פתח את הלינק בספארי</div>
+    <div class="inst-row">2. לחץ ⬆️ שתף → הוסף למסך הבית</div>
+    <div class="inst-row">3. שם: ASR → לחץ הוסף ✓</div>
+    <hr class="inst-sep">
+    <div class="inst-phone">🤖 אנדרואיד — כרום</div>
+    <div class="inst-row">1. פתח את הלינק בכרום</div>
+    <div class="inst-row">2. לחץ ⋮ שלוש נקודות בפינה</div>
+    <div class="inst-row">3. לחץ "הוסף למסך הבית" → אשר ✓</div>
+  </div>
+
+  <p class="note">שאלות? <strong>@avivshaulov8 באינסטגרם</strong></p>
+
+</div>
+
+<script>
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const code   = (params.get('code') || '').toUpperCase().trim();
+  const name   = params.get('name') || '';
+
+  // הצגת הקוד
+  const display = code || 'ASR2025';
+  document.getElementById('accessCode').textContent = display;
+  document.getElementById('codeInStep').textContent = display;
+
+  // הצגת שם אם התקבל מסאמיט
+  if (name) {
+    const decoded = decodeURIComponent(name);
+    document.getElementById('mainTitle').innerHTML =
+      decoded + ', תשלום אושר.<br><em>עכשיו תתחיל לרוץ אחרת.</em>';
+  }
+
+  // שמירת הקוד בזיכרון הדפדפן - לנוחות הכניסה לאפליקציה
+  if (code) {
+    localStorage.setItem('asr_pending_code', code);
+  }
+})();
+
+function copyCode() {
+  const code = document.getElementById('accessCode').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(function() {
+      showCopied();
+    }).catch(function() {
+      fallbackCopy(code);
+    });
+  } else {
+    fallbackCopy(code);
+  }
+}
+
+function fallbackCopy(text) {
+  const el = document.createElement('textarea');
+  el.value = text;
+  el.style.position = 'fixed';
+  el.style.opacity = '0';
+  document.body.appendChild(el);
+  el.focus();
+  el.select();
+  try { document.execCommand('copy'); showCopied(); } catch(e) {}
+  document.body.removeChild(el);
+}
+
+function showCopied() {
+  const msg = document.getElementById('copyMsg');
+  msg.textContent = '✓ הקוד הועתק!';
+  setTimeout(function() { msg.textContent = ''; }, 2500);
+}
+</script>
+</body>
+</html>

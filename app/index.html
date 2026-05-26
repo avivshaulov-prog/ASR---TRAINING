@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ASR">
+<title>ASR Training</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--red:#E8212A;--orange:#FF8C42;--dark:#120808;--dark2:#1E0E0E;--white:#fff;--off:#FFF8F8;--gray:#F5EEEE;--text:#2D1010;--muted:#9A7070}
+body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:var(--dark);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;overflow-x:hidden}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* LOGIN */
+#login{background:var(--dark);align-items:center;justify-content:center;position:relative;overflow:hidden;padding:40px 30px}
+#login::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(232,33,42,0.25) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.login-box{z-index:2;width:100%;max-width:340px;text-align:center}
+.logo-circle{width:100px;height:100px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 40px rgba(232,33,42,0.4)}
+.logo-circle svg{width:80px;height:80px}
+.login-title{font-size:36px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#fff 0%,#FF6B70 50%,var(--orange) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.login-sub{color:rgba(255,255,255,0.35);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:40px}
+.login-label{color:rgba(255,255,255,0.5);font-size:12px;text-align:right;margin-bottom:8px}
+.code-input{width:100%;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;font-size:20px;font-weight:700;color:white;text-align:center;letter-spacing:6px;margin-bottom:14px;outline:none;transition:border-color 0.2s}
+.code-input:focus{border-color:var(--red)}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--red),var(--orange));color:white;border:none;padding:16px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(232,33,42,0.35);margin-bottom:16px}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+.login-err{color:#FF6B70;font-size:13px;min-height:20px;margin-bottom:8px}
+.buy-link{color:rgba(255,255,255,0.3);font-size:12px}
+.buy-link span{color:var(--orange);text-decoration:underline;cursor:pointer}
+
+/* HOME */
+#home{background:var(--off)}
+.home-header{background:var(--dark);padding:52px 22px 20px;position:relative;overflow:hidden}
+.home-header::after{content:'ASR';position:absolute;font-size:120px;font-weight:900;color:rgba(255,255,255,0.04);left:-10px;top:10px;letter-spacing:-4px;pointer-events:none}
+.h-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;z-index:1}
+.h-logo{display:flex;align-items:center;gap:10px}
+.h-logo-circle{width:36px;height:36px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.h-logo-circle svg{width:26px;height:26px}
+.h-logo-text{font-size:20px;font-weight:900;background:linear-gradient(135deg,#fff,#FF6B70);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.h-badge{background:rgba(232,33,42,0.2);border:1px solid rgba(232,33,42,0.35);color:#FF6B70;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.h-welcome{color:white;font-size:21px;font-weight:800;margin-bottom:4px;position:relative;z-index:1}
+.h-sub{color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;position:relative;z-index:1}
+
+/* LANDING */
+#homeLanding{background:var(--off)}
+.landing-body{padding:20px 20px 100px}
+.welcome-card{background:white;border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.welcome-card h3{font-size:16px;font-weight:800;margin-bottom:10px;color:var(--text)}
+.welcome-card p{font-size:13px;color:var(--muted);line-height:1.7}
+.notice-card{background:rgba(232,33,42,0.05);border:1px solid rgba(232,33,42,0.12);border-radius:14px;padding:16px;margin-bottom:14px;font-size:13px;color:var(--text);line-height:1.7}
+.notice-card strong{color:var(--red)}
+.cat-preview{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.cat-prev{background:white;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.cat-prev.green{border-top:3px solid #00C853}
+.cat-prev.red{border-top:3px solid var(--red)}
+.cat-prev h4{font-size:15px;font-weight:800;margin-bottom:6px}
+.cat-prev p{font-size:13px;color:var(--muted);line-height:1.6}
+.cat-prev ul{list-style:none;margin-top:10px}
+.cat-prev ul li{font-size:12px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--gray);display:flex;align-items:center;gap:8px}
+.cat-prev ul li:last-child{border:none}
+.cat-prev ul li::before{content:'✓';color:var(--red);font-weight:900;font-size:13px;flex-shrink:0}
+.cat-prev.green ul li::before{color:#00C853}
+.how-card{background:white;border-radius:14px;padding:18px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.how-card h4{font-size:14px;font-weight:800;margin-bottom:14px}
+.how-step{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--gray);font-size:13px;color:var(--muted)}
+.how-step:last-child{border:none}
+.how-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--orange));color:white;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.start-btn{width:100%;background:linear-gradient(135deg,var(--red),var(--orange));color:white;border:none;padding:18px;border-radius:14px;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(232,33,42,0.3)}
+
+/* WORKOUTS */
+#homeWorkouts{background:var(--off)}
+.notice-top{background:rgba(232,33,42,0.05);border:1px solid rgba(232,33,42,0.1);border-radius:10px;margin:12px 20px 0;padding:12px 16px;font-size:12px;color:var(--text);line-height:1.6}
+.notice-top strong{color:var(--red)}
+.cat-tabs{display:flex;gap:8px;padding:14px 20px 0}
+.cat-tab{flex:1;padding:10px 6px;border-radius:12px;border:2px solid transparent;background:white;cursor:pointer;text-align:center;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.cat-tab.active{border-color:var(--red);background:linear-gradient(135deg,rgba(232,33,42,0.06),rgba(255,140,66,0.06))}
+.cat-icon{font-size:16px;margin-bottom:3px}
+.cat-lbl{font-size:10px;font-weight:700;color:var(--muted)}
+.cat-tab.active .cat-lbl{color:var(--red)}
+.sec-title{padding:16px 20px 8px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
+.wlist{padding:0 20px 100px;display:flex;flex-direction:column;gap:10px}
+.wcard{background:white;border-radius:16px;padding:16px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:14px;transition:transform 0.15s;position:relative;overflow:hidden}
+.wcard:active{transform:scale(0.98)}
+.wcard::before{content:'';position:absolute;right:0;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,var(--red),var(--orange))}
+.wcard.green::before{background:linear-gradient(to bottom,#00C853,#69F0AE)}
+.wnum{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--red),var(--orange));display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:white;flex-shrink:0}
+.wnum.green{background:linear-gradient(135deg,#00C853,#69F0AE)}
+.winfo{flex:1;min-width:0}
+.wname{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px}
+.wmeta{font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.warr{color:var(--muted);font-size:20px;flex-shrink:0}
+
+/* DETAIL */
+#detail{background:var(--off)}
+.dhead{background:var(--dark);padding:52px 20px 20px;position:relative}
+.back-btn{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.55);font-size:14px;cursor:pointer;margin-bottom:14px;background:none;border:none;padding:0}
+.dbadge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px}
+.dbadge.red{background:rgba(232,33,42,0.2);color:#FF6B70;border:1px solid rgba(232,33,42,0.3)}
+.dbadge.green{background:rgba(0,200,83,0.15);color:#4AE07A;border:1px solid rgba(0,200,83,0.25)}
+.dtitle{color:white;font-size:22px;font-weight:900;margin-bottom:6px}
+.ddesc{color:rgba(255,255,255,0.45);font-size:13px;line-height:1.6;margin-bottom:14px}
+.dstats{display:flex;gap:10px}
+.dstat{background:rgba(255,255,255,0.07);border-radius:10px;padding:8px 14px;text-align:center}
+.dstat-v{color:white;font-size:13px;font-weight:800}
+.dstat-l{color:rgba(255,255,255,0.35);font-size:10px;margin-top:2px}
+.tip-box{margin:14px 20px 0;background:linear-gradient(135deg,rgba(232,33,42,0.07),rgba(255,140,66,0.07));border:1px solid rgba(232,33,42,0.15);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--text);line-height:1.6}
+.tip-box strong{color:var(--red)}
+.exlist{padding:12px 20px 100px;display:flex;flex-direction:column;gap:10px}
+.excard{background:white;border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.extop{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.exnum{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--red),var(--orange));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:white;flex-shrink:0}
+.exname{font-size:15px;font-weight:800;color:var(--text);flex:1;line-height:1.3}
+.exstats{display:flex;gap:6px;margin-bottom:10px}
+.exstat{flex:1;background:var(--gray);border-radius:8px;padding:7px 6px;text-align:center}
+.exstat-v{font-size:13px;font-weight:800;color:var(--text)}
+.exstat-l{font-size:9px;color:var(--muted);margin-top:1px}
+.exnote{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;font-style:italic}
+.demo-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:linear-gradient(135deg,var(--red),var(--orange));color:white;border:none;padding:11px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none}
+.demo-btn.soon{background:var(--gray);color:var(--muted);cursor:default}
+
+/* SCHEDULE */
+#schedule{background:var(--off)}
+.sched-head{background:var(--dark);padding:52px 22px 24px}
+.sched-head h2{color:white;font-size:22px;font-weight:900;margin-bottom:4px}
+.sched-head p{color:rgba(255,255,255,0.4);font-size:13px}
+.sched-body{padding:20px 20px 100px;display:flex;flex-direction:column;gap:12px}
+.sched-card{background:white;border-radius:16px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.sched-cat{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.sched-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--gray)}
+.sched-row:last-child{border-bottom:none}
+.sday{width:70px;font-size:13px;font-weight:800;color:var(--text)}
+.sworkout{flex:1;font-size:13px;color:var(--muted)}
+.sdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sdot.red{background:var(--red)}
+.sdot.green{background:#00C853}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:white;border-top:1px solid rgba(0,0,0,0.06);display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08)}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px}
+.nicon{font-size:22px}
+.nlbl{font-size:10px;font-weight:700;color:var(--muted)}
+.nitem.active .nlbl{color:var(--red)}
+
+/* VIDEO POPUP */
+.vpopup{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.vpopup.open{display:flex}
+.vpopup-inner{width:100%;max-width:480px;position:relative}
+.vpopup-close{position:absolute;top:-44px;left:0;background:rgba(255,255,255,0.1);border:none;color:white;font-size:14px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer}
+.vpopup iframe{width:100%;height:280px;border-radius:14px;border:none}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="screen active" id="login">
+  <div class="login-box">
+    <div class="logo-circle">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="none" stroke="black" stroke-width="5"/><text x="50" y="63" text-anchor="middle" font-family="Georgia,serif" font-size="36" font-weight="900" fill="black">ASR</text></svg>
+    </div>
+    <div class="login-title">ASR Training</div>
+    <div class="login-sub">Aviv Shaulov Result Running</div>
+    <div class="login-label">קוד גישה</div>
+    <input class="code-input" id="codeInput" type="text" placeholder="הכנס קוד..." maxlength="10" oninput="this.value=this.value.toUpperCase()">
+    <div class="login-err" id="loginErr"></div>
+    <button class="login-btn" id="loginBtn" onclick="tryLogin()">כניסה לאימונים</button>
+    <div class="buy-link">אין לך קוד? <span onclick="window.open('https://pay.sumit.co.il/f97a2a/v8baxf/v8baxg/payment/')">רכוש גישה כאן</span></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="home">
+
+  <!-- LANDING -->
+  <div id="homeLanding" style="flex:1;overflow-y:auto">
+    <div class="home-header">
+      <div class="h-top">
+        <div class="h-logo">
+          <div class="h-logo-circle"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="6"/><text x="50" y="63" text-anchor="middle" font-family="Georgia,serif" font-size="34" font-weight="900" fill="black">ASR</text></svg></div>
+          <div class="h-logo-text">ASR</div>
+        </div>
+        <div class="h-badge">7 אימונים 🔥</div>
+      </div>
+      <div class="h-welcome" id="welcomeMsg">ברוך הבא! 👋</div>
+      <div class="h-sub">Aviv Shaulov Result Running</div>
+    </div>
+
+    <div class="landing-body">
+      <div class="welcome-card">
+        <h3>מה תמצא כאן? 🏃</h3>
+        <p>קיבלת גישה לסדרת האימונים המקצועית של <strong>Aviv Shaulov</strong> — מאמן ריצה ומאמן אימוני כח עם ניסיון של שנים בעבודה עם רצים מכל הרמות. הסדרה נבנתה מתוך הקשבה אמיתית לרצים ומבוססת על גישה מדעית עדכנית.</p>
+      </div>
+
+      <div class="notice-card">
+        💡 <strong>חשוב לדעת:</strong> כל האימונים כאן מתאימים לחיזוק — לא רק לפצועים! גם אם אין לך כאב עכשיו, אימוני השיקום הם מהטובים שיש למניעת פציעות עתידיות. אין סיבה לדלג עליהם.
+      </div>
+
+      <div class="cat-preview">
+        <div class="cat-prev green">
+          <h4>🟢 חיזוק כללי — 3 אימונים</h4>
+          <p>לרצים שרוצים לרוץ חזק יותר ולמנוע פציעות</p>
+          <ul>
+            <li>יציבה ובסיס לרץ</li>
+            <li>כח א-סימטרי לרץ</li>
+            <li>פליאומטרי לרץ</li>
+          </ul>
+        </div>
+        <div class="cat-prev red">
+          <h4>🔴 שיקום ומניעה — 4 אימונים</h4>
+          <p>ממוקדים לאזורי הכאב הנפוצים — מתאים גם לחיזוק!</p>
+          <ul>
+            <li>ברך וקרסול</li>
+            <li>ירך ו-IT Band</li>
+            <li>קרסול ואכילס</li>
+            <li>ליבה ויציבות</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="how-card">
+        <h4>איך עובדים? 📋</h4>
+        <div class="how-step"><div class="how-num">1</div>בחר אימון מהרשימה</div>
+        <div class="how-step"><div class="how-num">2</div>לחץ על כל תרגיל לצפייה בהדגמה</div>
+        <div class="how-step"><div class="how-num">3</div>עקוב אחרי התוכנית השבועית בלשונית 📅</div>
+        <div class="how-step"><div class="how-num">4</div>2-3 אימונים בשבוע עם יום מנוחה ביניהם</div>
+      </div>
+
+      <button class="start-btn" onclick="goToWorkouts()">🏃 יאלה נתחיל!</button>
+    </div>
+  </div>
+
+  <!-- WORKOUTS -->
+  <div id="homeWorkouts" style="display:none;flex:1;overflow-y:auto">
+    <div class="home-header">
+      <div class="h-top">
+        <div class="h-logo">
+          <div class="h-logo-circle"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="6"/><text x="50" y="63" text-anchor="middle" font-family="Georgia,serif" font-size="34" font-weight="900" fill="black">ASR</text></svg></div>
+          <div class="h-logo-text">ASR</div>
+        </div>
+        <div class="h-badge">7 אימונים 🔥</div>
+      </div>
+      <div class="h-welcome">בחר אימון להיום 💪</div>
+      <div class="h-sub">כל האימונים מתאימים לכולם</div>
+    </div>
+    <div class="notice-top">💡 <strong>תזכורת:</strong> כל האימונים מתאימים לחיזוק — גם אם אין לך כאב עכשיו!</div>
+    <div class="cat-tabs">
+      <div class="cat-tab active" onclick="filterCat('all',this)"><div class="cat-icon">💪</div><div class="cat-lbl">הכל</div></div>
+      <div class="cat-tab" onclick="filterCat('general',this)"><div class="cat-icon">🟢</div><div class="cat-lbl">חיזוק</div></div>
+      <div class="cat-tab" onclick="filterCat('rehab',this)"><div class="cat-icon">🔴</div><div class="cat-lbl">שיקום</div></div>
+    </div>
+    <div class="sec-title">האימונים שלך</div>
+    <div class="wlist" id="wlist"></div>
+  </div>
+
+  <div class="bnav">
+    <div class="nitem active" id="nav-home" onclick="showHome()"><div class="nicon">🏠</div><div class="nlbl">בית</div></div>
+    <div class="nitem" id="nav-workouts" onclick="goToWorkouts()"><div class="nicon">💪</div><div class="nlbl">אימונים</div></div>
+    <div class="nitem" id="nav-schedule" onclick="showSchedule()"><div class="nicon">📅</div><div class="nlbl">תוכנית</div></div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="screen" id="detail">
+  <div class="dhead">
+    <button class="back-btn" onclick="goToWorkouts()">&#8592; חזרה לאימונים</button>
+    <div class="dbadge" id="dbadge"></div>
+    <div class="dtitle" id="dtitle"></div>
+    <div class="ddesc" id="ddesc"></div>
+    <div class="dstats" id="dstats"></div>
+  </div>
+  <div class="tip-box" id="dtip"></div>
+  <div class="exlist" id="exlist"></div>
+  <div class="bnav">
+    <div class="nitem" onclick="showHome()"><div class="nicon">🏠</div><div class="nlbl">בית</div></div>
+    <div class="nitem active" onclick="goToWorkouts()"><div class="nicon">💪</div><div class="nlbl">אימונים</div></div>
+    <div class="nitem" onclick="showSchedule()"><div class="nicon">📅</div><div class="nlbl">תוכנית</div></div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="screen" id="schedule">
+  <div class="sched-head">
+    <button class="back-btn" onclick="showHome()">&#8592; חזרה</button>
+    <h2>תוכנית שבועית 📅</h2>
+    <p>המלצת אימונים לפי ימים</p>
+  </div>
+  <div class="sched-body">
+    <div class="sched-card">
+      <div class="sched-cat">🟢 רצים ללא כאב</div>
+      <div class="sched-row"><div class="sday">ראשון</div><div class="sworkout">יציבה ובסיס לרץ</div><div class="sdot green"></div></div>
+      <div class="sched-row"><div class="sday">שלישי</div><div class="sworkout">כח א-סימטרי לרץ</div><div class="sdot green"></div></div>
+      <div class="sched-row"><div class="sday">שישי</div><div class="sworkout">פליאומטרי לרץ</div><div class="sdot green"></div></div>
+    </div>
+    <div class="sched-card">
+      <div class="sched-cat">🔴 רצים עם כאב</div>
+      <div class="sched-row"><div class="sday">ראשון</div><div class="sworkout">ברך וקרסול</div><div class="sdot red"></div></div>
+      <div class="sched-row"><div class="sday">שלישי</div><div class="sworkout">ירך ו-IT Band</div><div class="sdot red"></div></div>
+      <div class="sched-row"><div class="sday">חמישי</div><div class="sworkout">קרסול ואכילס</div><div class="sdot red"></div></div>
+      <div class="sched-row"><div class="sday">שבת</div><div class="sworkout">ליבה ויציבות</div><div class="sdot red"></div></div>
+    </div>
+    <div style="background:rgba(232,33,42,0.08);border:1px solid rgba(232,33,42,0.15);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--text);line-height:1.6">
+      ⚡ <strong>חשוב:</strong> יום מנוחה בין כל אימון כח. לא לעשות שני אימונים ברצף.
+    </div>
+    <div style="background:white;border-radius:16px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05)">
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:14px">🏃 משלבים ריצה עם אימוני כח?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">הנה ההמלצה לפי מספר הריצות שלך בשבוע:</div>
+      <div style="background:rgba(0,200,83,0.05);border:1px solid rgba(0,200,83,0.15);border-radius:12px;padding:14px;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:800;color:#00A844;margin-bottom:8px">רץ 2 פעמים בשבוע</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">ראשון — ריצה 🏃<br>שלישי — אימון כח 💪<br>חמישי — ריצה 🏃<br>שבת — אימון כח 💪</div>
+        <div style="font-size:11px;color:rgba(0,168,68,0.7);margin-top:8px">✓ מאוזן — הגוף מתאושש טוב בין כל פעילות</div>
+      </div>
+      <div style="background:rgba(232,33,42,0.05);border:1px solid rgba(232,33,42,0.12);border-radius:12px;padding:14px">
+        <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:8px">רץ 3 פעמים בשבוע</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">ראשון — ריצה 🏃<br>שני — אימון כח 💪<br>רביעי — ריצה + אימון כח קצר 🏃💪<br>שישי — ריצה 🏃<br>שבת — אימון כח 💪</div>
+        <div style="font-size:11px;color:rgba(232,33,42,0.6);margin-top:8px">⚡ כשמשלבים ריצה ואימון כח באותו יום — עדיף ריצה קודם ואימון כח אחר כך</div>
+      </div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="nitem" onclick="showHome()"><div class="nicon">🏠</div><div class="nlbl">בית</div></div>
+    <div class="nitem" onclick="goToWorkouts()"><div class="nicon">💪</div><div class="nlbl">אימונים</div></div>
+    <div class="nitem active" onclick="showSchedule()"><div class="nicon">📅</div><div class="nlbl">תוכנית</div></div>
+  </div>
+</div>
+
+<!-- VIDEO POPUP -->
+<div class="vpopup" id="vpopup">
+  <div class="vpopup-inner">
+    <button class="vpopup-close" onclick="closeVideo()">✕ סגור</button>
+    <iframe id="vframe" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+// ====================================================
+// הגדרות - שנה את זה לאחר פריסת Apps Script
+// ====================================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTQve2Yy4vz9vnp6WLpS7x-V1uaCxcx7Cm-d7-ahxSEbIiRGoDTtIL6h1LplRBIZfx/exec';
+// דוגמה: 'https://script.google.com/macros/s/AKfycb.../exec'
+
+// קוד ישן למשתמשים קיימים (ניתן להסיר עתידית)
+const LEGACY_CODE = 'ASR2025';
+
+let currentCat = 'all';
+
+// ====================================================
+// כניסה - בדיקת קוד
+// ====================================================
+function tryLogin() {
+  const v = document.getElementById('codeInput').value.trim().toUpperCase();
+  const err = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+
+  if (!v || v.length < 5) {
+    err.textContent = 'הכנס קוד גישה';
+    return;
+  }
+
+  // בדיקת localStorage - קוד שכבר אומת בעבר
+  const saved = localStorage.getItem('asr_validated_code');
+  if (saved && saved === v) {
+    loginSuccess(v);
+    return;
+  }
+
+  // קוד ישן (ASR2025) - קבלה ישירה
+  if (v === LEGACY_CODE) {
+    localStorage.setItem('asr_validated_code', v);
+    loginSuccess(v);
+    return;
+  }
+
+  // Apps Script לא מוגדר עדיין - בדיקת פורמט בלבד
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    // קבל כל קוד שמתחיל ב-ASR ו-7+ תווים (עד שApps Script מוגדר)
+    if (v.startsWith('ASR') && v.length >= 7) {
+      localStorage.setItem('asr_validated_code', v);
+      loginSuccess(v);
+    } else {
+      showError();
+    }
+    return;
+  }
+
+  // אימות מול Apps Script
+  err.textContent = 'מאמת קוד...';
+  btn.disabled = true;
+
+  const cbName = '_asrCb' + Date.now();
+  const timeout = setTimeout(function() {
+    cleanup();
+    err.textContent = 'שגיאת חיבור — נסה שוב';
+    btn.disabled = false;
+  }, 8000);
+
+  function cleanup() {
+    clearTimeout(timeout);
+    delete window[cbName];
+    const s = document.getElementById('_asrScript');
+    if (s) s.remove();
+  }
+
+  window[cbName] = function(result) {
+    cleanup();
+    btn.disabled = false;
+    if (result && result.valid) {
+      localStorage.setItem('asr_validated_code', v);
+      if (result.name) localStorage.setItem('asr_user_name', result.name);
+      loginSuccess(v);
+    } else {
+      showError();
+    }
+  };
+
+  const script = document.createElement('script');
+  script.id = '_asrScript';
+  script.src = APPS_SCRIPT_URL + '?action=validate&code=' + encodeURIComponent(v) + '&callback=' + cbName;
+  script.onerror = function() {
+    cleanup();
+    btn.disabled = false;
+    err.textContent = 'שגיאת חיבור — נסה שוב';
+  };
+  document.body.appendChild(script);
+}
+
+function showError() {
+  const err = document.getElementById('loginErr');
+  const input = document.getElementById('codeInput');
+  err.textContent = 'קוד שגוי — נסה שוב';
+  input.style.borderColor = 'var(--red)';
+  setTimeout(function() { input.style.borderColor = ''; }, 1500);
+}
+
+function loginSuccess(code) {
+  document.getElementById('loginErr').textContent = '';
+  document.getElementById('login').classList.remove('active');
+  document.getElementById('home').classList.add('active');
+
+  // שם מותאם אישית אם קיים
+  const name = localStorage.getItem('asr_user_name');
+  if (name) {
+    document.getElementById('welcomeMsg').textContent = 'שלום ' + name + '! 👋';
+  }
+
+  showHome();
+}
+
+document.getElementById('codeInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tryLogin();
+});
+
+// מילוי אוטומטי מדף תודה (אם נשמר)
+window.addEventListener('load', function() {
+  const pending = localStorage.getItem('asr_pending_code');
+  if (pending) {
+    document.getElementById('codeInput').value = pending;
+    localStorage.removeItem('asr_pending_code');
+  }
+});
+
+// ====================================================
+// נתוני אימונים
+// ====================================================
+const workouts = [
+  {id:1,cat:'general',name:'יציבה ובסיס לרץ',duration:'50',level:'מתחיל–בינוני',
+   desc:'בניית בסיס שרירי יציב לברכיים, ירכיים וליבה',
+   tip:'תרגילי הפיתה מחקים את תנועת הריצה — שמור על גב ישר וליבה מכווצת לאורך כל התרגיל.',
+   ex:[
+    {n:'פיתה - כפיפת ברך',s:4,r:'35 שנ׳ לרגל',rpe:'80%',rest:'2 דק',note:'גב ישר, ליבה מכווצת',link:'https://drive.google.com/file/d/1U885NCexAouSn4qaUYAOBSanqB2erl7O/view'},
+    {n:'פיתה - החלפות רגליים',s:4,r:'50 שנ׳',rpe:'80%',rest:'2 דק',note:'תנועה מהירה ומבוקרת',link:'https://drive.google.com/file/d/1LyPgDF0luSJciuXyUuiod3hmvIwWKGg8/view'},
+    {n:'פיתה שעון',s:4,r:'50 שנ׳',rpe:'80%',rest:'2 דק',note:'כיסוי כל הכיוונים',link:'https://drive.google.com/file/d/1lP75f7lnmXNbNgwkp_balZwgyddDnM95/view'},
+    {n:'רברס לאנצ',s:3,r:'6-6',rpe:'70-80%',rest:'2 דק',note:'גב זקוף, ברך לא עוברת האצבעות',link:'https://drive.google.com/file/d/1IUpsd21vHVZG6PnminUgkQuKccYkptMg/view'},
+    {n:'סינגל סקוואט צידי',s:3,r:'6-6',rpe:'60-70%',rest:'1 דק',note:'ברך לא כופפת פנימה',link:'https://drive.google.com/file/d/1hq4TkvbzgYc508bJEwbEzV4rTB_3o2Hc/view'},
+    {n:'סטפ אפ לברך לחזה',s:3,r:'8-8',rpe:'60-70%',rest:'1 דק',note:'עלייה מלאה, ברך לחזה',link:'https://drive.google.com/file/d/11AHSJo9qjZoC4Ujb3fcpw31LGUIM8Uqb/view'},
+    {n:'פתיחת ירך - אקטיבי',s:3,r:'40 שנ׳ לרגל',rpe:'60%',rest:'1 דק',note:'תנועה איטית ומבוקרת',link:'https://drive.google.com/file/d/1sWnho-LVzBA2iohiWoymSBTRsqzEdLgi/view'},
+    {n:'לאנצ הרמת עקבים - באלנס',s:3,r:'40 שנ׳',rpe:'60%',rest:'1 דק',note:'שיווי משקל מלא',link:'https://drive.google.com/file/d/13CPk2rvXjv-NAWLv0Ez0dFL48GZ7pY_2/view'},
+  ]},
+  {id:2,cat:'general',name:'כח א-סימטרי לרץ',duration:'50',level:'בינוני',
+   desc:'חיזוק כל רגל בנפרד — מאזן חוסרים ומונע פציעות',
+   tip:'בסטפ אפ ירידה איטית — 3 שניות למטה. עומס אקסצנטרי שמחזק את השריר פי 1.5 מעומס רגיל.',
+   ex:[
+    {n:'סטפ אפ לברך לחזה',s:4,r:'8-8',rpe:'80%',rest:'2 דק',note:'עלייה מלאה, ברך לחזה',link:'https://drive.google.com/file/d/11AHSJo9qjZoC4Ujb3fcpw31LGUIM8Uqb/view'},
+    {n:'סטפ אפ - ירידה איטית',s:4,r:'6-6',rpe:'80%',rest:'2 דק',note:'3 שניות ירידה מבוקרת',link:'https://drive.google.com/file/d/1wEzeDxzIezpSeB_VD8chCsm_jc-K5ROc/view'},
+    {n:'לאנצ בולגרי',s:4,r:'6-10',rpe:'80%',rest:'2 דק',note:'ירידה ישרה, לא קדימה',link:'https://drive.google.com/file/d/1deYjd0oJi_2-K9vWnjtC6TYBOMVvk6VR/view'},
+    {n:'סינגל לג סקוואט',s:4,r:'6-6',rpe:'60-70%',rest:'2 דק',note:'ברך יציבה, לא צוללת פנימה',link:'https://drive.google.com/file/d/11JKw7ziCUA1IUDvjj3zIQn-bosrc8xpz/view'},
+    {n:'פתיחת ירך - אקטיבי',s:3,r:'8-8',rpe:'70-80%',rest:'1 דק',note:'תנועה מבוקרת',link:'https://drive.google.com/file/d/1sWnho-LVzBA2iohiWoymSBTRsqzEdLgi/view'},
+    {n:'עליות אגן - רגל-רגל',s:3,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'סחיטת גלוטאוס בראש',link:'https://drive.google.com/file/d/1sKvcwCeiwaizox2i1uytmthpOL65FoRS/view'},
+    {n:'כפיפת מרפק ללחיצה - באלנס',s:3,r:'10-10',rpe:'60%',rest:'1 דק',note:'שמור יציבות האגן',link:'https://drive.google.com/file/d/1kLCokrjIOcYz7BMq_Zm3E_0moMpawImE/view'},
+    {n:'קראנצ אופניים - בטן',s:3,r:'דקה',rpe:'60-70%',rest:'1 דק',note:'מרפק לברך הנגדית',link:'https://drive.google.com/file/d/1kw9mD4sKsqDX37rD2--RcuNqGL-zz4hw/view'},
+  ]},
+  {id:3,cat:'general',name:'פליאומטרי לרץ',duration:'40',level:'בינוני–מתקדם',
+   desc:'שיפור יעילות ריצה, קדנס, קלילות תנועה ותגובה עצבית-שרירית',
+   tip:'חימום מפרקי מלא לפני! נחת רך על כרית כף הרגל — לעולם לא על עקב.',
+   ex:[
+    {n:'קפיצות פוגו - רגל אחת',s:4,r:'40 שנ׳',rpe:'80%',rest:'2 דק',note:'נחיתה רכה ומבוקרת',link:'https://drive.google.com/file/d/1EGi2iO0UAwJqyg6drX8prlQO6CtC3BYC/view'},
+    {n:'קפיצות שתי רגליים עיגול',s:4,r:'40 שנ׳',rpe:'80%',rest:'2 דק',note:'קצב אחיד',link:'https://drive.google.com/file/d/1_N8dV3P3y8yniEZQ6GwmZ4FBHOFYkO2f/view'},
+    {n:'קפיצות שינוי כיוון',s:4,r:'40 שנ׳',rpe:'80%',rest:'2 דק',note:'כיוון מהיר ומדויק',link:'https://drive.google.com/file/d/1HfvUiRrAMeixdc_74DChyIxdGU2LNFn9/view'},
+    {n:'קפיצות רגל אחת שינוי כיוון',s:3,r:'40 שנ׳',rpe:'70-80%',rest:'2 דק',note:'יציבות בנחיתה',link:'https://drive.google.com/file/d/1gfDc354omTH1aCfV-lRMsTswMhZlK2mJ/view'},
+    {n:'קפיצות צד כנגד גומייה',s:3,r:'40 שנ׳',rpe:'70%',rest:'1 דק',note:'גומייה בגובה קרסול',link:'https://drive.google.com/file/d/19Qc3K0yhkOvbyZqjh8NY78sVJlq4PYpA/view'},
+    {n:'קפיצות בירך גובה',s:3,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'ירך מגיעה לגובה האגן',link:'https://drive.google.com/file/d/1xtzRxRDxbWTzyBCD1ceZGOhhSzY0GvAW/view'},
+    {n:'קאדנס שינוי כיוון',s:3,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'קצב מהיר ומבוקר',link:'https://drive.google.com/file/d/1aSeZDQlfMri8R5Cqk0rZZYu3QQ-BEfNg/view'},
+    {n:'קפיצות ברך עולה',s:3,r:'20 שנ׳',rpe:'60-70%',rest:'1 דק',note:'ברך עולה לגובה האגן',link:'https://drive.google.com/file/d/15hgAOkKfRVbHjXUrBxFT3-wyN2riW3Se/view'},
+  ]},
+  {id:4,cat:'rehab',name:'ברך וקרסול',duration:'50',level:'שיקום + מניעה',
+   desc:'חיזוק שרשרת הקינטית של הברך והקרסול — מפחית כאב ומייצב מפרקים',
+   tip:'כפיפת ברך עם ירידה של 3 שניות — הטיפול הפיזיותרפיסטי הכי מוכח לכאב ברך קדמי.',
+   ex:[
+    {n:'פרונט סקוואט',s:4,r:'8',rpe:'80%',rest:'2 דק',note:'גב ישר, ברכיים מעל האצבעות',link:'https://drive.google.com/file/d/1KJGJEwWICjwXaZzShn3LYRD5pLafbFe4/view'},
+    {n:'ספליט סקוואט',s:4,r:'8 לצד',rpe:'80%',rest:'2 דק',note:'ירידה איטית 3 שניות',link:'https://drive.google.com/file/d/1B1ooUxt2zMk2CiS00CU86LQZSRJo9_95/view'},
+    {n:'כפיפות ירך ישיבה',s:3,r:'14',rpe:'60%',rest:'2 דק',note:'ירידה איטית — עומס אקסצנטרי',link:'https://drive.google.com/file/d/1ApoVRXSQbyXgla4IDRdMfsg8tvhbkUgl/view'},
+    {n:'כפיפת ברך (אפשר מדרגה)',s:3,r:'10-10',rpe:'70-80%',rest:'1 דק',note:'3 שניות ירידה מבוקרת',link:'https://drive.google.com/file/d/1RgA4poivDq-RdRCbsqI9Y6h9TO4QMb6m/view'},
+    {n:'וואל סיט הרמת עקבים',s:4,r:'50 שנ׳',rpe:'80%',rest:'2 דק',note:'עקבים עולים לאט',link:'https://drive.google.com/file/d/1Rd81N7Q2cxjYlmtc8lWxEs0Kf5pCo62V/view'},
+    {n:'כפיפת מרפק ללחיצה - באלנס',s:4,r:'8-8',rpe:'60-70%',rest:'1 דק',note:'שמור יציבות האגן',link:'https://drive.google.com/file/d/1kLCokrjIOcYz7BMq_Zm3E_0moMpawImE/view'},
+    {n:'פיתה שעון',s:3,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'תנועה מבוקרת בכל כיוון',link:'https://drive.google.com/file/d/1lP75f7lnmXNbNgwkp_balZwgyddDnM95/view'},
+    {n:'פשיטת ברך כנגד גומייה',s:3,r:'12-15 לרגל',rpe:'60-70%',rest:'1 דק',note:'גומייה מאחורי הברך, יישור מלא',link:'https://drive.google.com/file/d/1bDmC5DFG5VXv5BDQBYn62vKSyA6RaN5p/view'},
+  ]},
+  {id:5,cat:'rehab',name:'ירך ו-IT Band',duration:'50',level:'שיקום + מניעה',
+   desc:'חיזוק מייצבי הירך, גלוטאוס ושרירי האגן',
+   tip:'היפ טרסט ראשון — כשהגלוטאוס טרי. סחיטה של 2 שניות בראש התנועה.',
+   ex:[
+    {n:'היפ טרסט',s:4,r:'6-10',rpe:'80%',rest:'2 דק',note:'סחיטה מקסימלית בראש',link:'https://drive.google.com/file/d/1FKzuBlUV4ra5CH8XdDpsRt0VrqyxVahD/view'},
+    {n:'דד ליפט',s:4,r:'8',rpe:'80%',rest:'2 דק',note:'גב ישר, ירכיים קדימה בסיום',link:'https://drive.google.com/file/d/1i0v0-sDqxkKIJubXgSyFARCxXYCxKZTg/view'},
+    {n:'באק סקוואט',s:4,r:'8',rpe:'80%',rest:'2 דק',note:'ירידה איטית, ברכיים יציבות',link:'https://drive.google.com/file/d/1lBBuTycO7uXcioRW4Jc84KiZeymxi12m/view'},
+    {n:'לאנצ בולגרי',s:4,r:'6-6',rpe:'60-70%',rest:'2 דק',note:'ירידה ישרה, לא קדימה',link:'https://drive.google.com/file/d/1deYjd0oJi_2-K9vWnjtC6TYBOMVvk6VR/view'},
+    {n:'הרמת ירך כנגד משקל בעמידה',s:3,r:'6/6',rpe:'70-80%',rest:'1 דק',note:'תנועה איטית ומבוקרת',link:'https://drive.google.com/file/d/1-mV1mS0pmqK27FHPT1PbnFn4KAeb4kme/view'},
+    {n:'Nordic Hamstring — מתחילים',s:2,r:'6-8',rpe:'70%',rest:'2 דק',note:'ירידה איטית קדימה עם תמיכה',link:'https://drive.google.com/file/d/1lIreec5GGx35dm6EPBAkf7hN9xKYAGay/view'},
+    {n:'Nordic Hamstring — מתקדמים',s:3,r:'6-8',rpe:'80%',rest:'2 דק',note:'ירידה מלאה קדימה — עצור לפני הרצפה',link:'https://drive.google.com/file/d/1zjKUK58s1xywvFVmp_yfsluMXiLUzZMM/view'},
+    {n:'סינגל סקוואט צידי',s:3,r:'6-6',rpe:'60-70%',rest:'1 דק',note:'ברך לא כופפת פנימה',link:'https://drive.google.com/file/d/1hq4TkvbzgYc508bJEwbEzV4rTB_3o2Hc/view'},
+  ]},
+  {id:6,cat:'rehab',name:'קרסול ואכילס',duration:'45',level:'שיקום + מניעה',
+   desc:'חיזוק וייצוב קרסול, גיד האכילס ושרירי השוק',
+   tip:'Calf Raise על מדרגה — עלייה על שתיים, ירידה על אחת לאט. פרוטוקול Alfredson המוכח לאכילס.',
+   ex:[
+    {n:'סינגל דד ליפט - רגל באוויר',s:4,r:'8-8',rpe:'80%',rest:'2 דק',note:'גב ישר, קרסול יציב',link:'https://drive.google.com/file/d/1gfbnYkgxjvCRwzW5XQlhrUdq7O9E7KhE/view'},
+    {n:'ספליט סקוואט',s:4,r:'8-8',rpe:'80%',rest:'2 דק',note:'ירידה איטית 3 שניות',link:'https://drive.google.com/file/d/1B1ooUxt2zMk2CiS00CU86LQZSRJo9_95/view'},
+    {n:'ירידה בלימה קפיצה',s:3,r:'40 שנ׳',rpe:'60%',rest:'2 דק',note:'נחיתה רכה על כרית הרגל',link:'https://drive.google.com/file/d/17PHnfv54_4uW-_OmxURN5twNjGMMjh2v/view'},
+    {n:'Calf Raise אקסצנטרי על מדרגה',s:3,r:'15',rpe:'60-70%',rest:'2 דק',note:'עלייה שתיים, ירידה אחת — 3 שניות',link:'https://drive.google.com/file/d/1Wmx3wwge9NCaeEW1sIK8x2DJeuuwaauZ/view'},
+    {n:'וואל סיט הרמת עקבים',s:3,r:'45 שנ׳',rpe:'70-80%',rest:'1 דק',note:'עקבים עולים עד הסוף',link:'https://drive.google.com/file/d/1Rd81N7Q2cxjYlmtc8lWxEs0Kf5pCo62V/view'},
+    {n:'סטפ אפ - ירידה איטית',s:4,r:'6-6',rpe:'60-70%',rest:'1 דק',note:'3 שניות ירידה',link:'https://drive.google.com/file/d/1wEzeDxzIezpSeB_VD8chCsm_jc-K5ROc/view'},
+    {n:'הליכת סרטן ABD-ADC',s:4,r:'40 שנ׳',rpe:'80%',rest:'1 דק',note:'קרסול יציב, צעדים שווים',link:'https://drive.google.com/file/d/1YifovF9FWleo_hkPozR3Pm5N7WRQCVQB/view'},
+    {n:'קופנהגן פלאנק',s:3,r:'30 שנ׳',rpe:'60-70%',rest:'1 דק',note:'אגן גבוה, גוף ישר',link:'https://drive.google.com/file/d/157SFvRkAgP1c6zgS005ke62utLyNylGW/view'},
+  ]},
+  {id:7,cat:'rehab',name:'ליבה ויציבות',duration:'45',level:'שיקום + מניעה',
+   desc:'חיזוק עמוק של שרירי הליבה והאגן. מתאים לבית ללא ציוד!',
+   tip:'Dead Bug — גב תחתון צמוד לרצפה לאורך כל התרגיל. זרוע ורגל נגדיות בו זמנית — כמו ריצה.',
+   ex:[
+    {n:'Dead Bug',s:4,r:'40 שנ׳',rpe:'80%',rest:'2 דק',note:'גב צמוד לרצפה לאורך כל הזמן',link:'https://drive.google.com/file/d/1TUxs6kMQ5kUvwIbUEeZLyWw5Qvf9Zs5-/view'},
+    {n:'מצב 2 - לאמות',s:4,r:'40 שנ׳',rpe:'80%',rest:'2 דק',note:'גב תחתון צמוד לרצפה',link:'https://drive.google.com/file/d/1FsF9QXaoXZ006F3K-iOQpfRHN66x7qjg/view'},
+    {n:'קראנצ אופניים - בטן',s:4,r:'40 שנ׳',rpe:'80%',rest:'2 דק',note:'מרפק לברך הנגדית',link:'https://drive.google.com/file/d/1kw9mD4sKsqDX37rD2--RcuNqGL-zz4hw/view'},
+    {n:'פלאנק - ניעות קדימה ולצד',s:4,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'אגן יציב, לא מתנדנד',link:'https://drive.google.com/file/d/1jp3hZGkdns8l8QFD2kFh4473qCr-tW7s/view'},
+    {n:'פלאנק צידי לניעות',s:4,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'ירך לא שוקעת',link:'https://drive.google.com/file/d/1GSB4IVD4JaArJQOdorGaIZUXIQVSSARZ/view'},
+    {n:'קופנהגן פלאנק',s:3,r:'40 שנ׳',rpe:'60%',rest:'1 דק',note:'גוף ישר, ליבה מכווצת',link:'https://drive.google.com/file/d/157SFvRkAgP1c6zgS005ke62utLyNylGW/view'},
+    {n:'כפיפות ירך ישיבה',s:3,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'תנועה מלאה ואיטית',link:'https://drive.google.com/file/d/1ApoVRXSQbyXgla4IDRdMfsg8tvhbkUgl/view'},
+    {n:'עליות אגן - רגל-רגל',s:3,r:'40 שנ׳',rpe:'60-70%',rest:'1 דק',note:'סחיטת גלוטאוס בראש',link:'https://drive.google.com/file/d/1sKvcwCeiwaizox2i1uytmthpOL65FoRS/view'},
+  ]},
+];
+
+// ====================================================
+// פונקציות ניווט ורינדור
+// ====================================================
+function openVideo(url) {
+  const fileId = url.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1];
+  const embedUrl = fileId ? 'https://drive.google.com/file/d/' + fileId + '/preview' : url;
+  document.getElementById('vframe').src = embedUrl;
+  document.getElementById('vpopup').classList.add('open');
+}
+
+function closeVideo() {
+  document.getElementById('vpopup').classList.remove('open');
+  document.getElementById('vframe').src = '';
+}
+
+function renderWorkouts(cat) {
+  const list = document.getElementById('wlist');
+  const filtered = cat === 'all' ? workouts : workouts.filter(function(w) { return w.cat === cat; });
+  list.innerHTML = filtered.map(function(w) {
+    return '<div class="wcard ' + (w.cat === 'general' ? 'green' : '') + '" onclick="showDetail(' + w.id + ')">'
+      + '<div class="wnum ' + (w.cat === 'general' ? 'green' : '') + '">' + w.id + '</div>'
+      + '<div class="winfo"><div class="wname">' + w.name + '</div>'
+      + '<div class="wmeta"><span>⏱ ' + w.duration + ' דק\'</span>'
+      + '<span>📊 ' + w.level + '</span>'
+      + '<span>💪 ' + w.ex.length + ' תרגילים</span></div></div>'
+      + '<div class="warr">›</div></div>';
+  }).join('');
+}
+
+function filterCat(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderWorkouts(cat);
+}
+
+function showDetail(id) {
+  const w = workouts.find(function(x) { return x.id === id; });
+  document.getElementById('dbadge').textContent = w.cat === 'general' ? '🟢 חיזוק כללי' : '🔴 שיקום ומניעה';
+  document.getElementById('dbadge').className = 'dbadge ' + (w.cat === 'general' ? 'green' : 'red');
+  document.getElementById('dtitle').textContent = w.name;
+  document.getElementById('ddesc').textContent = w.desc;
+  document.getElementById('dtip').innerHTML = '<strong>💡 טיפ מקצועי:</strong> ' + w.tip;
+  document.getElementById('dstats').innerHTML =
+    '<div class="dstat"><div class="dstat-v">' + w.duration + ' דק\'</div><div class="dstat-l">משך</div></div>'
+    + '<div class="dstat"><div class="dstat-v">' + w.ex.length + '</div><div class="dstat-l">תרגילים</div></div>'
+    + '<div class="dstat"><div class="dstat-v">' + w.level + '</div><div class="dstat-l">רמה</div></div>';
+  document.getElementById('exlist').innerHTML = w.ex.map(function(e, i) {
+    return '<div class="excard">'
+      + '<div class="extop"><div class="exnum">' + (i+1) + '</div><div class="exname">' + e.n + '</div></div>'
+      + '<div class="exstats">'
+      + '<div class="exstat"><div class="exstat-v">' + e.s + '</div><div class="exstat-l">סטים</div></div>'
+      + '<div class="exstat"><div class="exstat-v">' + e.r + '</div><div class="exstat-l">חזרות</div></div>'
+      + '<div class="exstat"><div class="exstat-v">' + e.rpe + '</div><div class="exstat-l">RPE</div></div>'
+      + '<div class="exstat"><div class="exstat-v">' + e.rest + '</div><div class="exstat-l">מנוחה</div></div>'
+      + '</div>'
+      + (e.note ? '<div class="exnote">💡 ' + e.note + '</div>' : '')
+      + (e.link
+        ? '<a class="demo-btn" href="' + e.link + '" target="_blank">▶️ צפה בהדגמה</a>'
+        : '<button class="demo-btn soon">🎥 הדגמה בקרוב</button>')
+      + '</div>';
+  }).join('');
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('detail').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showHome() {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('home').classList.add('active');
+  document.getElementById('homeLanding').style.display = 'block';
+  document.getElementById('homeWorkouts').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function goToWorkouts() {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('home').classList.add('active');
+  document.getElementById('homeLanding').style.display = 'none';
+  document.getElementById('homeWorkouts').style.display = 'block';
+  renderWorkouts(currentCat);
+  window.scrollTo(0, 0);
+}
+
+function showSchedule() {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('schedule').classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
